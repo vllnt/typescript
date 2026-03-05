@@ -1,12 +1,31 @@
 {
   "name": "@vllnt/typescript",
-  "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "Shared TypeScript configurations for vllnt projects",
+  "license": "MIT",
+  "author": "bntvllnt",
+  "homepage": "https://github.com/vllnt/typescript#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vllnt/typescript.git"
+  },
+  "keywords": [
+    "typescript",
+    "tsconfig",
+    "config",
+    "shared-config"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
   "files": [
     "base.json",
     "nextjs.json",
     "nodejs.json",
     "node-library.json",
     "react.json"
-  ]
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
 }

@@ -3,16 +3,12 @@
   "display": "Node.js",
   "extends": "./base.json",
   "compilerOptions": {
-    "target": "ES2017",
-    "module": "CommonJS",
+    "lib": ["ES2024"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "ES2024",
     "declaration": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "allowSyntheticDefaultImports": true,
-    "moduleResolution": "node",
-    "incremental": true,
-    "removeComments": true,
     "sourceMap": true,
-    "strictBindCallApply": false
+    "incremental": true
   }
 }

@@ -2,15 +2,12 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "display": "Default",
   "compilerOptions": {
-    "composite": false,
+    "strict": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "lib": ["esnext"],
     "isolatedModules": true,
-    "moduleResolution": "node",
-    "noUncheckedIndexedAccess": true,
-    "preserveWatchOutput": true,
     "skipLibCheck": true,
-    "strict": true
+    "noUncheckedIndexedAccess": true,
+    "resolveJsonModule": true
   }
 }

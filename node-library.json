@@ -3,14 +3,12 @@
   "display": "Node Library",
   "extends": "./base.json",
   "compilerOptions": {
-    "composite": true,
+    "lib": ["ES2024"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "ES2024",
     "declaration": true,
     "declarationMap": true,
-    "sourceMap": true,
-    "lib": ["esnext"],
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "isolatedModules": true,
-    "target": "es6"
+    "sourceMap": true
   }
 }
