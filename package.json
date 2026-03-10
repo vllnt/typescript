@@ -25,6 +25,10 @@
     "node-library.json",
     "react.json"
   ],
+  "scripts": {
+    "test": "node --test tests/smoke.test.js",
+    "prepublishOnly": "node --test tests/smoke.test.js"
+  },
   "publishConfig": {
     "access": "public"
   }

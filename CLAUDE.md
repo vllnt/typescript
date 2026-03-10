@@ -22,15 +22,12 @@ git push && git push --tags
 
 ## Publishing (CI)
 
-Push a version tag — CI handles the rest:
+Two modes via `publish.yml`:
 
-```sh
-npm version patch
-git push && git push --tags
-# release.yml: npm publish --provenance → GitHub Release
-```
+- **Canary**: auto-publishes on push to main (when config files change) as `x.y.z-canary.<sha>` on `canary` tag
+- **Release**: manual trigger via Actions → Publish → workflow_dispatch, select bump type (patch/minor/major)
 
-Requires `NPM_TOKEN` secret in GitHub repo settings.
+Uses npm OIDC provenance — no `NPM_TOKEN` secret needed. Requires npm trusted publishers configured on npmjs.org.
 
 ## Project structure
 
@@ -46,5 +43,6 @@ nextjs.json        ← Next.js apps (Bundler, ES2022, noEmit, next plugin)
 
 | Command | What |
 |---------|------|
+| `npm test` | Run smoke tests (JSON validation) |
 | `npm pack --dry-run` | Preview tarball contents |
 | `npm view @vllnt/typescript` | Check published version |
