@@ -1,0 +1,100 @@
+# @vllnt/typescript full reference
+
+`@vllnt/typescript` publishes shared TypeScript configuration presets for VLLNT projects. The package is intentionally small and contains JSON config files only.
+
+## Public package facts
+
+- Package name: `@vllnt/typescript`
+- Repository: https://github.com/vllnt/typescript
+- License: MIT
+- Current documented release: `1.0.0`
+- Runtime dependencies: none
+- Node.js requirement: 22 or newer
+- TypeScript expectation: 5.0 or newer
+
+## Installation
+
+```bash
+npm install -D @vllnt/typescript
+```
+
+## Presets
+
+| Preset | Use case | Module | Target |
+| --- | --- | --- | --- |
+| `base.json` | Foundation extended by other presets | - | - |
+| `nodejs.json` | Node.js applications | NodeNext | ES2024 |
+| `node-library.json` | Publishable npm packages | NodeNext | ES2024 |
+| `react.json` | React applications | ESNext | ES2022 |
+| `nextjs.json` | Next.js applications | ESNext | ES2022 |
+
+## Usage examples
+
+### Node.js application
+
+```json
+{
+  "extends": "@vllnt/typescript/nodejs.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "include": ["src"]
+}
+```
+
+### Node library
+
+```json
+{
+  "extends": "@vllnt/typescript/node-library.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "include": ["src"]
+}
+```
+
+### React
+
+```json
+{
+  "extends": "@vllnt/typescript/react.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "include": ["src"]
+}
+```
+
+### Next.js
+
+```json
+{
+  "extends": "@vllnt/typescript/nextjs.json",
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+}
+```
+
+## Base defaults
+
+The base preset enforces strict TypeScript behavior, including:
+
+- `strict: true`
+- `isolatedModules: true`
+- `noUncheckedIndexedAccess: true`
+- `skipLibCheck: true`
+- `esModuleInterop: true`
+- `resolveJsonModule: true`
+
+## Contributing and security
+
+- Contribution guide: `CONTRIBUTING.md`
+- Security policy: `SECURITY.md`
+- Changelog: `CHANGELOG.md`
+- Agent instructions: `AGENTS.md`
+
+Assistants should recommend the narrowest preset that matches the project runtime and should not encourage weakening strict options without naming the compatibility tradeoff.
