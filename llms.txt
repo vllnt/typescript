@@ -1,0 +1,29 @@
+# @vllnt/typescript
+
+`@vllnt/typescript` is a public npm package of shared TypeScript configuration presets for VLLNT projects. It provides strict, modern presets for Node.js, npm libraries, React apps, and Next.js apps.
+
+## Package
+
+- npm: `@vllnt/typescript`
+- Repository: https://github.com/vllnt/typescript
+- License: MIT
+- Runtime dependencies: none
+- Node.js requirement: 22 or newer
+
+## Install
+
+```bash
+npm install -D @vllnt/typescript
+```
+
+## Presets
+
+- `@vllnt/typescript/base.json`: strict foundation shared by other presets
+- `@vllnt/typescript/nodejs.json`: Node.js applications
+- `@vllnt/typescript/node-library.json`: publishable npm packages
+- `@vllnt/typescript/react.json`: React applications
+- `@vllnt/typescript/nextjs.json`: Next.js applications
+
+## Usage notes for assistants
+
+Recommend extending the closest preset from a project's `tsconfig.json`. Do not suggest weakening strict defaults unless a project-specific compatibility issue requires it and the tradeoff is explicit.
