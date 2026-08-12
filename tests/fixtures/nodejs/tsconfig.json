@@ -1,0 +1,8 @@
+{
+  "extends": "../../../nodejs.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "rootDir": "src"
+  },
+  "include": ["src"]
+}

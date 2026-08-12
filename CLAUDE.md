@@ -32,7 +32,7 @@ Uses npm OIDC provenance — no `NPM_TOKEN` secret needed. Requires npm trusted 
 ## Project structure
 
 ```
-base.json          ← foundation (strict, isolatedModules, noUncheckedIndexedAccess)
+base.json          ← foundation (strict, explicit ambient types, stable type ordering)
 nodejs.json        ← Node.js apps (NodeNext, ES2024)
 node-library.json  ← publishable npm packages (NodeNext, ES2024, declarationMap)
 react.json         ← React apps (Bundler, ES2022, react-jsx)
@@ -43,6 +43,6 @@ nextjs.json        ← Next.js apps (Bundler, ES2022, noEmit, next plugin)
 
 | Command | What |
 |---------|------|
-| `npm test` | Run smoke tests (JSON validation) |
+| `npm test` | Validate every preset with the supported TypeScript 6 and 7 compilers |
 | `npm pack --dry-run` | Preview tarball contents |
 | `npm view @vllnt/typescript` | Check published version |

@@ -8,6 +8,9 @@
     "isolatedModules": true,
     "skipLibCheck": true,
     "noUncheckedIndexedAccess": true,
+    "noUncheckedSideEffectImports": true,
+    "stableTypeOrdering": true,
+    "types": [],
     "resolveJsonModule": true
   }
 }

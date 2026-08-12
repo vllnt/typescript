@@ -34,12 +34,16 @@ jobs:
   quality:
     name: Quality Gates
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+
+      - run: npm ci --ignore-scripts
 
       - run: npm test
 
@@ -58,6 +62,8 @@ jobs:
         with:
           node-version: 22
           registry-url: https://registry.npmjs.org
+
+      - run: npm ci --ignore-scripts
 
       - name: Upgrade npm for OIDC support
         run: npm install -g npm@latest
@@ -91,6 +97,8 @@ jobs:
         with:
           node-version: 22
           registry-url: https://registry.npmjs.org
+
+      - run: npm ci --ignore-scripts
 
       - name: Bump version
         id: version

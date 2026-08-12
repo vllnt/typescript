@@ -7,7 +7,7 @@
   "homepage": "https://github.com/vllnt/typescript#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/vllnt/typescript.git"
+    "url": "git+https://github.com/vllnt/typescript.git"
   },
   "keywords": [
     "typescript",
@@ -28,6 +28,13 @@
   "scripts": {
     "test": "node --test tests/smoke.test.js",
     "prepublishOnly": "node --test tests/smoke.test.js"
+  },
+  "peerDependencies": {
+    "typescript": ">=6.0.2 <8"
+  },
+  "devDependencies": {
+    "@typescript/native": "npm:typescript@7.0.2",
+    "typescript": "npm:@typescript/typescript6@6.0.2"
   },
   "publishConfig": {
     "access": "public"
