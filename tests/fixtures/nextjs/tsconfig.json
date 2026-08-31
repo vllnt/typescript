@@ -1,0 +1,8 @@
+{
+  "extends": "../../../nextjs.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "types": ["node", "react"]
+  },
+  "include": ["src"]
+}

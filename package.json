@@ -1,13 +1,23 @@
 {
   "name": "@vllnt/typescript",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Shared TypeScript configurations for vllnt projects",
   "license": "MIT",
-  "author": "bntvllnt",
+  "author": {
+    "name": "bntvllnt",
+    "url": "https://bntvllnt.com"
+  },
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/bntvllnt"
+  },
   "homepage": "https://github.com/vllnt/typescript#readme",
+  "bugs": {
+    "url": "https://github.com/vllnt/typescript/issues"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/vllnt/typescript.git"
+    "url": "git+https://github.com/vllnt/typescript.git"
   },
   "keywords": [
     "typescript",
@@ -15,6 +25,7 @@
     "config",
     "shared-config"
   ],
+  "packageManager": "pnpm@11.24.0",
   "engines": {
     "node": ">=22"
   },
@@ -23,13 +34,47 @@
     "nextjs.json",
     "nodejs.json",
     "node-library.json",
-    "react.json"
+    "react.json",
+    "CHANGELOG.md",
+    "llms.txt",
+    "llms-full.txt"
   ],
+  "exports": {
+    "./base.json": "./base.json",
+    "./nextjs.json": "./nextjs.json",
+    "./nodejs.json": "./nodejs.json",
+    "./node-library.json": "./node-library.json",
+    "./react.json": "./react.json",
+    "./package.json": "./package.json"
+  },
   "scripts": {
-    "test": "node --test tests/smoke.test.js",
-    "prepublishOnly": "node --test tests/smoke.test.js"
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:integration": "pnpm --dir tests/integration/react build && pnpm --dir tests/integration/nextjs build",
+    "check": "pnpm format:check && pnpm lint && pnpm test:coverage && pnpm test:integration",
+    "prepublishOnly": "pnpm check"
+  },
+  "peerDependencies": {
+    "typescript": ">=6.0.2 <8"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.1",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.5",
+    "@typescript/native": "npm:typescript@7.0.2",
+    "@vitest/coverage-v8": "4.1.11",
+    "@vllnt/eslint-config": "1.0.1",
+    "eslint": "9.39.5",
+    "prettier": "3.9.6",
+    "typescript": "npm:@typescript/typescript6@6.0.2",
+    "vitest": "4.1.11"
   },
   "publishConfig": {
-    "access": "public"
-  }
+    "access": "public",
+    "provenance": true
+  },
+  "sideEffects": false
 }

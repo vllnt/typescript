@@ -1,0 +1,70 @@
+# @vllnt/typescript full reference
+
+`@vllnt/typescript` publishes strict JSON compiler presets for Node.js 22+, npm libraries, React, and Next.js. Version 2 supports TypeScript `>=6.0.2 <8` and is validated with the TypeScript 6 compatibility package and native TypeScript 7.0.2.
+
+## Installation
+
+TypeScript 7-only projects install:
+
+```sh
+pnpm add --save-dev @vllnt/typescript@^2 typescript@^7
+```
+
+Tools that still import the legacy compiler API use the official side-by-side arrangement:
+
+```json
+{
+  "devDependencies": {
+    "@typescript/native": "npm:typescript@^7.0.2",
+    "@vllnt/typescript": "^2.0.0",
+    "typescript": "npm:@typescript/typescript6@^6.0.2"
+  }
+}
+```
+
+This exposes native TypeScript 7 as `tsc`, TypeScript 6 as `tsc6`, and TypeScript 6's JavaScript API through the `typescript` package name.
+
+## Presets
+
+| Preset | Use case | Module resolution | Target | Emit |
+| --- | --- | --- | --- | --- |
+| `base.json` | Shared foundation | Inherited | Inherited | Inherited |
+| `nodejs.json` | Node.js applications | NodeNext | ES2024 | JavaScript, declarations, maps |
+| `node-library.json` | Publishable npm packages | NodeNext | ES2024 | JavaScript, declarations and maps |
+| `react.json` | Bundled React applications | Bundler | ES2022 | JavaScript, declarations, maps |
+| `nextjs.json` | Next.js applications | Bundler | ES2022 | None |
+
+## Shared compiler contract
+
+All specialized presets inherit:
+
+- `strict: true`
+- `isolatedModules: true`
+- `noUncheckedIndexedAccess: true`
+- `noUncheckedSideEffectImports: true`
+- `forceConsistentCasingInFileNames: true`
+- `skipLibCheck: true`
+- `esModuleInterop: true`
+- `resolveJsonModule: true`
+- `stableTypeOrdering: true`
+- `libReplacement: false`
+- `types: []`
+
+Ambient types are opt-in. Consumers should add entries such as `node`, `react`, or `vitest/globals` to `types`. Emitting projects must set `rootDir` explicitly.
+
+## Migration from version 1
+
+Version 2 drops TypeScript 5. Consumers must remove `baseUrl`, avoid legacy module formats and resolution, use explicit `rootDir` and `types`, and run Next.js 16.3 or newer for native TypeScript 7 builds. Keep the TypeScript 6 compatibility API installed while tools such as `typescript-eslint` need it.
+
+## Package validation
+
+The repository compiles every preset with TypeScript 6 and 7, verifies strictness and declaration emit, installs the generated tarball into an isolated consumer, enforces its exact file surface, and builds real React/Vite and Next.js fixtures. The package has no runtime dependencies; TypeScript is a peer dependency.
+
+## Resources
+
+- Main documentation: `README.md`
+- Release history: `CHANGELOG.md`
+- Contributions: `CONTRIBUTING.md`
+- Security policy: `SECURITY.md`
+- Repository: https://github.com/vllnt/typescript
+- License: MIT

@@ -5,62 +5,67 @@ on:
     branches: [main]
     paths:
       - "base.json"
+      - "nextjs.json"
       - "nodejs.json"
       - "node-library.json"
       - "react.json"
-      - "nextjs.json"
       - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "scripts/**"
+      - "tests/**"
       - ".github/workflows/publish.yml"
   workflow_dispatch:
     inputs:
-      bump:
-        description: "Version bump type"
+      version:
+        description: "Exact package version already committed to main"
         required: true
-        type: choice
-        options:
-          - patch
-          - minor
-          - major
+        type: string
 
 concurrency:
   group: publish-${{ github.event_name }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 permissions:
-  contents: write
-  id-token: write
+  contents: read
 
 jobs:
   quality:
     name: Quality Gates
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: actions/setup-node@v4
+      - uses: pnpm/action-setup@f520eceda224fe1a4aed5a2a27a194379a409996 # v6.0.10
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: 22
+          node-version: 22.22.2
+          cache: pnpm
 
-      - run: npm test
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check
 
   canary:
     name: Publish Canary
     needs: quality
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       id-token: write
       contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: 22
+          node-version: 22.22.2
           registry-url: https://registry.npmjs.org
 
-      - name: Upgrade npm for OIDC support
-        run: npm install -g npm@latest
+      - name: Install OIDC-capable npm
+        run: npm install --global npm@12.0.2
 
       - name: Publish canary
         run: |
@@ -69,98 +74,93 @@ jobs:
 
           BASE_VERSION=$(node -p "require('./package.json').version")
           SHORT_SHA=$(echo "$GITHUB_SHA" | cut -c1-7)
-          CANARY_VERSION="${BASE_VERSION}-canary.${SHORT_SHA}"
-          npm version "$CANARY_VERSION" --no-git-tag-version
-          npm publish --tag canary --provenance --access public
+          VERSION="${BASE_VERSION}-canary.${SHORT_SHA}"
+          npm version "$VERSION" --no-git-tag-version
+
+          PACK_RESULT=$(npm pack --ignore-scripts --json --pack-destination "$RUNNER_TEMP")
+          TARBALL_NAME=$(echo "$PACK_RESULT" | node -e 'let input=""; process.stdin.on("data", chunk => input += chunk); process.stdin.on("end", () => console.log(JSON.parse(input)[0].filename))')
+          LOCAL_INTEGRITY=$(echo "$PACK_RESULT" | node -e 'let input=""; process.stdin.on("data", chunk => input += chunk); process.stdin.on("end", () => console.log(JSON.parse(input)[0].integrity))')
+          REMOTE_INTEGRITY=$(npm view "@vllnt/typescript@${VERSION}" dist.integrity 2>/dev/null || true)
+
+          if [ -n "$REMOTE_INTEGRITY" ]; then
+            test "$LOCAL_INTEGRITY" = "$REMOTE_INTEGRITY"
+            test "$(npm view @vllnt/typescript dist-tags.canary)" = "$VERSION"
+          else
+            npm publish "$RUNNER_TEMP/$TARBALL_NAME" --tag canary --provenance --access public
+          fi
 
   release:
-    name: Publish Release
+    name: Publish Stable Release
     needs: quality
-    if: github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: npm
     permissions:
       contents: write
       id-token: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
-          token: ${{ secrets.RELEASE_PAT }}
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: 22
+          node-version: 22.22.2
           registry-url: https://registry.npmjs.org
 
-      - name: Bump version
-        id: version
+      - name: Verify versioned main commit
+        env:
+          EXPECTED_VERSION: ${{ inputs.version }}
         run: |
-          npm version ${{ inputs.bump }} --no-git-tag-version
+          git fetch origin main
+          test "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)"
           VERSION=$(node -p "require('./package.json').version")
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          test "$VERSION" = "$EXPECTED_VERSION"
+          grep -F "## [$VERSION]" CHANGELOG.md
 
-      - name: Generate changelog
-        id: changelog
-        run: |
-          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
-          if [ -z "$LAST_TAG" ]; then
-            RANGE="HEAD"
-          else
-            RANGE="${LAST_TAG}..HEAD"
-          fi
+      - name: Install OIDC-capable npm
+        run: npm install --global npm@12.0.2
 
-          {
-            echo "body<<CHANGELOG_EOF"
-
-            FEATS=$(git log "$RANGE" --pretty=format:"%s" --grep="^feat" 2>/dev/null || true)
-            if [ -n "$FEATS" ]; then
-              echo "### Features"
-              echo "$FEATS" | sed 's/^/- /'
-              echo ""
-            fi
-
-            FIXES=$(git log "$RANGE" --pretty=format:"%s" --grep="^fix" 2>/dev/null || true)
-            if [ -n "$FIXES" ]; then
-              echo "### Bug Fixes"
-              echo "$FIXES" | sed 's/^/- /'
-              echo ""
-            fi
-
-            OTHERS=$(git log "$RANGE" --pretty=format:"%s" --invert-grep --grep="^feat" --grep="^fix" 2>/dev/null || true)
-            if [ -n "$OTHERS" ]; then
-              echo "### Other Changes"
-              echo "$OTHERS" | sed 's/^/- /'
-              echo ""
-            fi
-
-            echo "CHANGELOG_EOF"
-          } >> "$GITHUB_OUTPUT"
-
-      - name: Commit and tag
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add package.json
-          git commit -m "chore(release): v${{ steps.version.outputs.version }}"
-          git tag -a "v${{ steps.version.outputs.version }}" -m "v${{ steps.version.outputs.version }}"
-          git push origin main --follow-tags
-
-      - name: Upgrade npm for OIDC support
-        run: npm install -g npm@latest
-
-      - name: Publish to npm
+      - name: Publish or reconcile npm package
+        env:
+          VERSION: ${{ inputs.version }}
         run: |
           sed -i '/_authToken/d' "$NPM_CONFIG_USERCONFIG"
           unset NODE_AUTH_TOKEN
-          npm publish --tag latest --provenance --access public
+
+          PACK_RESULT=$(npm pack --ignore-scripts --json --pack-destination "$RUNNER_TEMP")
+          TARBALL_NAME=$(echo "$PACK_RESULT" | node -e 'let input=""; process.stdin.on("data", chunk => input += chunk); process.stdin.on("end", () => console.log(JSON.parse(input)[0].filename))')
+          LOCAL_INTEGRITY=$(echo "$PACK_RESULT" | node -e 'let input=""; process.stdin.on("data", chunk => input += chunk); process.stdin.on("end", () => console.log(JSON.parse(input)[0].integrity))')
+          REMOTE_INTEGRITY=$(npm view "@vllnt/typescript@${VERSION}" dist.integrity 2>/dev/null || true)
+
+          if [ -n "$REMOTE_INTEGRITY" ]; then
+            test "$LOCAL_INTEGRITY" = "$REMOTE_INTEGRITY"
+            test "$(npm view @vllnt/typescript dist-tags.latest)" = "$VERSION"
+          else
+            npm publish "$RUNNER_TEMP/$TARBALL_NAME" --tag latest --provenance --access public
+          fi
+
+      - name: Create or verify release tag
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          if git rev-parse "refs/tags/v${VERSION}" >/dev/null 2>&1; then
+            test "$(git rev-list -n 1 "v${VERSION}")" = "$(git rev-parse HEAD)"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git tag -a "v${VERSION}" -m "v${VERSION}"
+            git push origin "refs/tags/v${VERSION}"
+          fi
 
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ inputs.version }}
         run: |
-          cat <<'NOTES_EOF' > /tmp/release-notes.md
-          ${{ steps.changelog.outputs.body }}
-          NOTES_EOF
-          gh release create "v${{ steps.version.outputs.version }}" \
-            --title "v${{ steps.version.outputs.version }}" \
-            --notes-file /tmp/release-notes.md
+          if gh release view "v${VERSION}" >/dev/null 2>&1; then
+            echo "GitHub release v${VERSION} already exists"
+          else
+            gh release create "v${VERSION}" --title "v${VERSION}" --generate-notes --verify-tag
+          fi
