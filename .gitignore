@@ -1,1 +1,8 @@
+.pi/
 node_modules/
+coverage/
+*.tgz
+*.tsbuildinfo
+tests/fixtures/**/dist/
+tests/integration/**/.next/
+tests/integration/**/dist/

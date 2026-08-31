@@ -1,48 +1,21 @@
 # @vllnt/typescript
 
-Shared TypeScript configurations for vllnt projects. Scoped to `@vllnt` npm org.
+Public shared TypeScript presets for Node.js, libraries, React, and Next.js. The goal is a small, strict, independently installable config package with verified TypeScript 6/7 behavior.
 
-## Publishing (local)
+## Repository map
 
-```sh
-# 1. Auth (one-time, or when token expires)
-npm login
+- `*.json` — published compiler presets; `base.json` owns shared defaults.
+- `tests/fixtures/` — compiler contract fixtures for every preset.
+- `tests/integration/` — real React/Vite and Next.js builds.
+- `scripts/test-utils.mjs` and `tests/configs.test.mjs` — package, compiler, and emit validation.
+- `.github/workflows/` — pull-request checks, canary publishing, and manual stable releases.
+- `README.md`, `CHANGELOG.md`, `llms*.txt` — public contract and migration documentation.
 
-# 2. Bump version (creates commit + tag)
-npm version patch   # 1.0.0 → 1.0.1
-npm version minor   # 1.0.0 → 1.1.0
-npm version major   # 1.0.0 → 2.0.0
+## Invariants
 
-# 3. Publish
-npm publish --access public
-
-# 4. Push commit + tag to remote
-git push && git push --tags
-```
-
-## Publishing (CI)
-
-Two modes via `publish.yml`:
-
-- **Canary**: auto-publishes on push to main (when config files change) as `x.y.z-canary.<sha>` on `canary` tag
-- **Release**: manual trigger via Actions → Publish → workflow_dispatch, select bump type (patch/minor/major)
-
-Uses npm OIDC provenance — no `NPM_TOKEN` secret needed. Requires npm trusted publishers configured on npmjs.org.
-
-## Project structure
-
-```
-base.json          ← foundation (strict, explicit ambient types, stable type ordering)
-nodejs.json        ← Node.js apps (NodeNext, ES2024)
-node-library.json  ← publishable npm packages (NodeNext, ES2024, declarationMap)
-react.json         ← React apps (Bundler, ES2022, react-jsx)
-nextjs.json        ← Next.js apps (Bundler, ES2022, noEmit, next plugin)
-```
-
-## Commands
-
-| Command | What |
-|---------|------|
-| `npm test` | Validate every preset with the supported TypeScript 6 and 7 compilers |
-| `npm pack --dry-run` | Preview tarball contents |
-| `npm view @vllnt/typescript` | Check published version |
+- Use pnpm and keep `pnpm-lock.yaml` deterministic.
+- Keep `package.json` files and exports aligned with every public preset.
+- Treat strictness, compiler floors, module resolution, target, and emit changes as public API changes.
+- Synchronize public behavior across README, changelog, and LLM manifests.
+- Do not publish, tag, merge, or announce a release without explicit maintainer instruction.
+- Run `pnpm check` and `pnpm pack --dry-run` before handoff.

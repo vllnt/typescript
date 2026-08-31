@@ -1,0 +1,16 @@
+{
+  "name": "@vllnt/typescript-react-integration",
+  "private": true,
+  "scripts": {
+    "build": "tsc --project tsconfig.json && vite build"
+  },
+  "devDependencies": {
+    "@vllnt/typescript": "workspace:*",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.5",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "typescript": "7.0.2",
+    "vite": "8.2.2"
+  }
+}

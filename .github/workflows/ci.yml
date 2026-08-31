@@ -1,11 +1,13 @@
 name: CI
 
 on:
+  push:
+    branches: [main]
   pull_request:
     branches: [main]
 
 concurrency:
-  group: ci-${{ github.head_ref }}
+  group: ci-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -15,13 +17,42 @@ jobs:
   validate:
     name: Validate
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
         with:
-          node-version: 22
+          node-version: 22.13
+          cache: pnpm
 
-      - run: npm ci --ignore-scripts
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check
 
-      - run: npm test
+  node-compatibility:
+    name: Node ${{ matrix.node }} package smoke test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [18, 26]
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Compile an installed-package consumer
+        run: |
+          PACKAGE=$(npm pack --ignore-scripts --json | node -e 'let input=""; process.stdin.on("data", chunk => input += chunk); process.stdin.on("end", () => console.log(JSON.parse(input)[0].filename))')
+          mkdir consumer
+          cd consumer
+          npm init -y >/dev/null
+          npm install --ignore-scripts --save-dev "../$PACKAGE" typescript@7.0.2
+          printf 'export const value: number = 1\n' > index.ts
+          printf '{"extends":"@vllnt/typescript/node-library.json","compilerOptions":{"noEmit":true,"rootDir":"."},"files":["index.ts"]}\n' > tsconfig.json
+          npx tsc --project tsconfig.json

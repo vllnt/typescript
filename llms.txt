@@ -1,29 +1,27 @@
 # @vllnt/typescript
 
-`@vllnt/typescript` is a public npm package of shared TypeScript configuration presets for VLLNT projects. It provides strict, modern presets for Node.js, npm libraries, React apps, and Next.js apps.
+> Strict shared TypeScript presets for Node.js, libraries, React, and Next.js, tested with TypeScript 6 and the native TypeScript 7 compiler.
 
-## Package
-
-- npm: `@vllnt/typescript`
+- npm: https://www.npmjs.com/package/@vllnt/typescript
 - Repository: https://github.com/vllnt/typescript
+- Documentation: https://github.com/vllnt/typescript#readme
+- Changelog: https://github.com/vllnt/typescript/blob/main/CHANGELOG.md
+- Full reference: https://github.com/vllnt/typescript/blob/main/llms-full.txt
 - License: MIT
-- Runtime dependencies: none
-- Node.js requirement: 22 or newer
 
-## Install
+## Compatibility
 
-```bash
-npm install -D @vllnt/typescript
-```
+- Node.js consumers: 18 or newer
+- TypeScript: `>=6.0.2 <8`
+- TypeScript 7 migration: native `tsc` can run beside the TypeScript 6 compatibility API
+- Runtime dependencies: none; TypeScript is a peer dependency
 
 ## Presets
 
-- `@vllnt/typescript/base.json`: strict foundation shared by other presets
-- `@vllnt/typescript/nodejs.json`: Node.js applications
-- `@vllnt/typescript/node-library.json`: publishable npm packages
-- `@vllnt/typescript/react.json`: React applications
-- `@vllnt/typescript/nextjs.json`: Next.js applications
+- `@vllnt/typescript/base.json`: strict shared defaults and explicit ambient types
+- `@vllnt/typescript/nodejs.json`: NodeNext Node.js applications targeting ES2024
+- `@vllnt/typescript/node-library.json`: publishable NodeNext libraries with declaration maps
+- `@vllnt/typescript/react.json`: bundled React applications using `react-jsx`
+- `@vllnt/typescript/nextjs.json`: no-emit Next.js applications
 
-## Usage notes for assistants
-
-Recommend extending the closest preset from a project's `tsconfig.json`. Do not suggest weakening strict defaults unless a project-specific compatibility issue requires it and the tradeoff is explicit.
+Consumers should list required ambient packages in `types` and set `rootDir` in emitting projects.

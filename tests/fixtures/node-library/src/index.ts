@@ -1,3 +1,3 @@
 export function double(value: number): number {
-  return value * 2
+  return value * 2;
 }

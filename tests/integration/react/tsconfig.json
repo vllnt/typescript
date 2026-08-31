@@ -3,7 +3,7 @@
   "compilerOptions": {
     "noEmit": true,
     "rootDir": "src",
-    "types": ["react"]
+    "types": ["react", "react-dom/client"]
   },
   "include": ["src"]
 }

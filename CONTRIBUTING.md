@@ -1,45 +1,28 @@
 # Contributing to @vllnt/typescript
 
-Thank you for helping improve `@vllnt/typescript`.
+Thank you for helping improve the shared TypeScript presets.
 
-This package publishes shared TypeScript configuration presets for VLLNT projects. Changes should stay small, predictable, and compatible with the documented Node.js and TypeScript requirements.
+## Requirements
+
+- Node.js 22.13 or newer
+- pnpm 11.24.0
 
 ## Development
 
-Requirements:
-
-- Node.js 22 or newer
-- npm 10 or compatible
-
-Run the smoke tests:
-
-```bash
-npm test
+```sh
+pnpm install --frozen-lockfile
+pnpm check
+pnpm pack --dry-run
 ```
 
-Preview package contents before release-oriented changes:
-
-```bash
-npm pack --dry-run
-```
+`pnpm check` runs formatting, linting, TypeScript 6/7 compiler fixtures, packed-package validation, coverage, and real React/Vite and Next.js builds.
 
 ## Pull requests
 
-Before opening a pull request:
+1. Branch from `main` and keep the change focused.
+2. Preserve documented compiler, module, target, and emit behavior unless the change is intentionally breaking.
+3. Add or update compiler fixtures for preset changes.
+4. Update `README.md`, `CHANGELOG.md`, `llms.txt`, and `llms-full.txt` with public behavior.
+5. Run `pnpm check` and inspect the package tarball.
 
-1. Create a branch from `main`.
-2. Keep the diff scoped to one concern.
-3. Update or add smoke tests when preset files change.
-4. Run `npm test`.
-5. Update `README.md` and `CHANGELOG.md` for public preset changes.
-
-## Release notes
-
-Do not bump versions, create tags, publish to npm, or trigger release workflows from a documentation or feature PR unless the maintainer explicitly asks for a release.
-
-## Preset constraints
-
-- Preserve strict defaults in `base.json` unless a breaking change is intentional and documented.
-- Keep each preset focused on its named runtime or framework.
-- Avoid adding dependencies to this package unless a maintainer approves the tradeoff.
-- Keep `files` in `package.json` aligned with the published presets.
+Do not bump versions, create tags, publish to npm, or trigger a stable release unless a maintainer explicitly requests it.

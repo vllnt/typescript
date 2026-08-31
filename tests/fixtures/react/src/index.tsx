@@ -1,3 +1,3 @@
 export function Button() {
-  return <button disabled>Ready</button>
+  return <button disabled>Ready</button>;
 }

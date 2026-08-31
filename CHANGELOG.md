@@ -1,13 +1,28 @@
 # Changelog
 
-All notable changes to this project are documented in this file.
-
-The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project uses semantic versioning for published npm releases.
+All notable changes to this project are documented in this file. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project uses semantic versioning.
 
 ## [Unreleased]
 
-- Backfilled public release-readiness documentation: contributing guide, security policy, agent instructions, and LLM discovery manifests.
-- Added CI/CD workflows and smoke tests after the `1.0.0` tag; no npm release has been made for those repository-only changes yet.
+### Added
+
+- Added compiler-backed fixtures for every preset under TypeScript 6 and TypeScript 7.
+- Added installed-tarball, declaration-emit, React/Vite, and Next.js integration checks.
+- Added pnpm, formatting, linting, Vitest, and 100% test-helper coverage gates.
+- Added explicit JSON package exports and public package documentation.
+
+### Changed
+
+- Prepared the package as version `2.0.0` so merges publish `2.0.0-canary.<sha>` to the npm `canary` tag.
+- Upgraded the primary compiler to TypeScript 7.0.2 while retaining the TypeScript 6 compatibility API for dependent tooling.
+- Made ambient types explicit with `types: []`, enabled `noUncheckedSideEffectImports` and stable type ordering, and disabled library replacement.
+- Updated CI and trusted publishing workflows for deterministic pnpm installs, current actions, pinned OIDC-capable npm, provenance, and generated GitHub release notes.
+
+### Breaking
+
+- Dropped TypeScript 5; supported compilers are now TypeScript `>=6.0.2 <8`.
+- Ambient `@types` packages must be listed explicitly by consumers.
+- Emitting projects must set `rootDir` explicitly to retain their intended output layout.
 
 ## [1.0.0] - 2026-03-05
 
