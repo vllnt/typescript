@@ -3,3 +3,7 @@ packages:
 
 allowBuilds:
   esbuild: true
+
+overrides:
+  deepmerge-ts: 8.0.0
+  handlebars: 4.7.9

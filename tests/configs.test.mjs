@@ -125,6 +125,12 @@ describe.each(compilers)("$label", (compiler) => {
         "index.js",
         "index.js.map",
       ]);
+      expect(
+        run(process.execPath, [
+          "--eval",
+          `const { double } = require(${JSON.stringify(join(outputDirectory, "index.js"))}); process.stdout.write(String(double(2)))`,
+        ]),
+      ).toBe("4");
     } finally {
       rmSync(outputDirectory, { force: true, recursive: true });
     }

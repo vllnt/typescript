@@ -4,6 +4,8 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-08-31
+
 ### Added
 
 - Added compiler-backed fixtures for every preset under TypeScript 6 and TypeScript 7.
@@ -32,5 +34,6 @@ All notable changes to this project are documented in this file. The format foll
 - Added `base.json`, `nodejs.json`, `node-library.json`, `react.json`, and `nextjs.json` presets.
 - Documented Node.js 22+ and TypeScript 5+ expectations.
 
-[Unreleased]: https://github.com/vllnt/typescript/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/vllnt/typescript/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/vllnt/typescript/compare/v1.0.0...v2.0.0
 [1.0.0]: https://github.com/vllnt/typescript/releases/tag/v1.0.0

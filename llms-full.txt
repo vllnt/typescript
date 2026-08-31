@@ -1,6 +1,6 @@
 # @vllnt/typescript full reference
 
-`@vllnt/typescript` publishes strict JSON compiler presets for Node.js, npm libraries, React, and Next.js. Version 2 supports TypeScript `>=6.0.2 <8` and is validated with the TypeScript 6 compatibility package and native TypeScript 7.0.2.
+`@vllnt/typescript` publishes strict JSON compiler presets for Node.js 22+, npm libraries, React, and Next.js. Version 2 supports TypeScript `>=6.0.2 <8` and is validated with the TypeScript 6 compatibility package and native TypeScript 7.0.2.
 
 ## Installation
 

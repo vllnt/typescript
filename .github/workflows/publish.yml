@@ -17,16 +17,10 @@ on:
       - ".github/workflows/publish.yml"
   workflow_dispatch:
     inputs:
-      bump:
-        description: "Version bump before publishing; use none for the version already on main"
+      version:
+        description: "Exact package version already committed to main"
         required: true
-        default: none
-        type: choice
-        options:
-          - none
-          - patch
-          - minor
-          - major
+        type: string
 
 concurrency:
   group: publish-${{ github.event_name }}
@@ -41,11 +35,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: pnpm/action-setup@v6
+      - uses: pnpm/action-setup@f520eceda224fe1a4aed5a2a27a194379a409996 # v6.0.10
 
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 22.13
           cache: pnpm
@@ -63,17 +57,12 @@ jobs:
       id-token: write
       contents: read
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: pnpm/action-setup@v6
-
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 22.13
-          cache: pnpm
           registry-url: https://registry.npmjs.org
-
-      - run: pnpm install --frozen-lockfile
 
       - name: Install OIDC-capable npm
         run: npm install --global npm@12.0.2
@@ -85,13 +74,25 @@ jobs:
 
           BASE_VERSION=$(node -p "require('./package.json').version")
           SHORT_SHA=$(echo "$GITHUB_SHA" | cut -c1-7)
-          npm version "${BASE_VERSION}-canary.${SHORT_SHA}" --no-git-tag-version
-          npm publish --tag canary --provenance --access public
+          VERSION="${BASE_VERSION}-canary.${SHORT_SHA}"
+          npm version "$VERSION" --no-git-tag-version
+
+          PACK_RESULT=$(npm pack --ignore-scripts --json --pack-destination "$RUNNER_TEMP")
+          TARBALL_NAME=$(echo "$PACK_RESULT" | node -e 'let input=""; process.stdin.on("data", chunk => input += chunk); process.stdin.on("end", () => console.log(JSON.parse(input)[0].filename))')
+          LOCAL_INTEGRITY=$(echo "$PACK_RESULT" | node -e 'let input=""; process.stdin.on("data", chunk => input += chunk); process.stdin.on("end", () => console.log(JSON.parse(input)[0].integrity))')
+          REMOTE_INTEGRITY=$(npm view "@vllnt/typescript@${VERSION}" dist.integrity 2>/dev/null || true)
+
+          if [ -n "$REMOTE_INTEGRITY" ]; then
+            test "$LOCAL_INTEGRITY" = "$REMOTE_INTEGRITY"
+            test "$(npm view @vllnt/typescript dist-tags.canary)" = "$VERSION"
+          else
+            npm publish "$RUNNER_TEMP/$TARBALL_NAME" --tag canary --provenance --access public
+          fi
 
   release:
     name: Publish Stable Release
     needs: quality
-    if: github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     environment: npm
@@ -99,62 +100,67 @@ jobs:
       contents: write
       id-token: write
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
-          token: ${{ secrets.RELEASE_PAT }}
 
-      - uses: pnpm/action-setup@v6
-
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 22.13
-          cache: pnpm
           registry-url: https://registry.npmjs.org
 
-      - run: pnpm install --frozen-lockfile
-
-      - name: Prepare version
-        id: version
+      - name: Verify versioned main commit
+        env:
+          EXPECTED_VERSION: ${{ inputs.version }}
         run: |
-          if [ "${{ inputs.bump }}" != "none" ]; then
-            pnpm version "${{ inputs.bump }}" --no-git-tag-version
-          fi
+          git fetch origin main
+          test "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)"
           VERSION=$(node -p "require('./package.json').version")
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          test "$VERSION" = "$EXPECTED_VERSION"
+          grep -F "## [$VERSION]" CHANGELOG.md
 
       - name: Install OIDC-capable npm
         run: npm install --global npm@12.0.2
 
-      - name: Publish to npm
+      - name: Publish or reconcile npm package
         env:
-          VERSION: ${{ steps.version.outputs.version }}
+          VERSION: ${{ inputs.version }}
         run: |
           sed -i '/_authToken/d' "$NPM_CONFIG_USERCONFIG"
           unset NODE_AUTH_TOKEN
-          if npm view "@vllnt/typescript@${VERSION}" version >/dev/null 2>&1; then
-            echo "@vllnt/typescript@${VERSION} is already published; reconciling Git metadata"
+
+          PACK_RESULT=$(npm pack --ignore-scripts --json --pack-destination "$RUNNER_TEMP")
+          TARBALL_NAME=$(echo "$PACK_RESULT" | node -e 'let input=""; process.stdin.on("data", chunk => input += chunk); process.stdin.on("end", () => console.log(JSON.parse(input)[0].filename))')
+          LOCAL_INTEGRITY=$(echo "$PACK_RESULT" | node -e 'let input=""; process.stdin.on("data", chunk => input += chunk); process.stdin.on("end", () => console.log(JSON.parse(input)[0].integrity))')
+          REMOTE_INTEGRITY=$(npm view "@vllnt/typescript@${VERSION}" dist.integrity 2>/dev/null || true)
+
+          if [ -n "$REMOTE_INTEGRITY" ]; then
+            test "$LOCAL_INTEGRITY" = "$REMOTE_INTEGRITY"
+            test "$(npm view @vllnt/typescript dist-tags.latest)" = "$VERSION"
           else
-            npm publish --tag latest --provenance --access public
+            npm publish "$RUNNER_TEMP/$TARBALL_NAME" --tag latest --provenance --access public
           fi
 
-      - name: Commit and tag
+      - name: Create or verify release tag
         env:
-          VERSION: ${{ steps.version.outputs.version }}
+          VERSION: ${{ inputs.version }}
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if ! git diff --quiet; then
-            git add package.json pnpm-lock.yaml
-            git commit -m "chore(release): v${VERSION}"
-          fi
-          if ! git rev-parse "refs/tags/v${VERSION}" >/dev/null 2>&1; then
+          if git rev-parse "refs/tags/v${VERSION}" >/dev/null 2>&1; then
+            test "$(git rev-list -n 1 "v${VERSION}")" = "$(git rev-parse HEAD)"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git tag -a "v${VERSION}" -m "v${VERSION}"
+            git push origin "refs/tags/v${VERSION}"
           fi
-          git push origin main --follow-tags
 
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VERSION: ${{ steps.version.outputs.version }}
-        run: gh release create "v${VERSION}" --title "v${VERSION}" --generate-notes --verify-tag
+          VERSION: ${{ inputs.version }}
+        run: |
+          if gh release view "v${VERSION}" >/dev/null 2>&1; then
+            echo "GitHub release v${VERSION} already exists"
+          else
+            gh release create "v${VERSION}" --title "v${VERSION}" --generate-notes --verify-tag
+          fi

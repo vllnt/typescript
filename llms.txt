@@ -11,7 +11,7 @@
 
 ## Compatibility
 
-- Node.js consumers: 18 or newer
+- Node.js consumers: 22 or newer
 - TypeScript: `>=6.0.2 <8`
 - TypeScript 7 migration: native `tsc` can run beside the TypeScript 6 compatibility API
 - Runtime dependencies: none; TypeScript is a peer dependency
