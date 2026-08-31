@@ -65,7 +65,10 @@ jobs:
           registry-url: https://registry.npmjs.org
 
       - name: Install OIDC-capable npm
-        run: npm install --global npm@12.0.2
+        run: |
+          npm install --global --prefix "$RUNNER_TEMP/npm-cli" npm@12.0.2
+          "$RUNNER_TEMP/npm-cli/bin/npm" --version
+          echo "$RUNNER_TEMP/npm-cli/bin" >> "$GITHUB_PATH"
 
       - name: Publish canary
         run: |
@@ -120,7 +123,10 @@ jobs:
           grep -F "## [$VERSION]" CHANGELOG.md
 
       - name: Install OIDC-capable npm
-        run: npm install --global npm@12.0.2
+        run: |
+          npm install --global --prefix "$RUNNER_TEMP/npm-cli" npm@12.0.2
+          "$RUNNER_TEMP/npm-cli/bin/npm" --version
+          echo "$RUNNER_TEMP/npm-cli/bin" >> "$GITHUB_PATH"
 
       - name: Publish or reconcile npm package
         env:
