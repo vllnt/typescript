@@ -123,6 +123,21 @@ jobs:
           VERSION=$(node -p "require('./package.json').version")
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
+      - name: Install OIDC-capable npm
+        run: npm install --global npm@12.0.2
+
+      - name: Publish to npm
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          sed -i '/_authToken/d' "$NPM_CONFIG_USERCONFIG"
+          unset NODE_AUTH_TOKEN
+          if npm view "@vllnt/typescript@${VERSION}" version >/dev/null 2>&1; then
+            echo "@vllnt/typescript@${VERSION} is already published; reconciling Git metadata"
+          else
+            npm publish --tag latest --provenance --access public
+          fi
+
       - name: Commit and tag
         env:
           VERSION: ${{ steps.version.outputs.version }}
@@ -133,17 +148,10 @@ jobs:
             git add package.json pnpm-lock.yaml
             git commit -m "chore(release): v${VERSION}"
           fi
-          git tag -a "v${VERSION}" -m "v${VERSION}"
+          if ! git rev-parse "refs/tags/v${VERSION}" >/dev/null 2>&1; then
+            git tag -a "v${VERSION}" -m "v${VERSION}"
+          fi
           git push origin main --follow-tags
-
-      - name: Install OIDC-capable npm
-        run: npm install --global npm@12.0.2
-
-      - name: Publish to npm
-        run: |
-          sed -i '/_authToken/d' "$NPM_CONFIG_USERCONFIG"
-          unset NODE_AUTH_TOKEN
-          npm publish --tag latest --provenance --access public
 
       - name: Create GitHub Release
         env:
