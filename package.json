@@ -50,12 +50,13 @@
   "scripts": {
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "lint": "eslint .",
+    "lint": "pnpm check:agents && eslint .",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:integration": "pnpm --dir tests/integration/react build && pnpm --dir tests/integration/nextjs build",
     "check": "pnpm format:check && pnpm lint && pnpm test:coverage && pnpm test:integration",
-    "prepublishOnly": "pnpm check"
+    "prepublishOnly": "pnpm check",
+    "check:agents": "node -e \"const f=require('node:fs');if(!f.existsSync('AGENTS.md')||f.existsSync('CLAUDE.md')||f.existsSync('.claude'))process.exit(1)\""
   },
   "peerDependencies": {
     "typescript": ">=6.0.2 <8"

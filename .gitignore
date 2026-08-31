@@ -6,3 +6,6 @@ coverage/
 tests/fixtures/**/dist/
 tests/integration/**/.next/
 tests/integration/**/dist/
+
+# AGENTS.md is the only agent instruction surface
+.claude/

@@ -2,6 +2,11 @@
 
 Public shared TypeScript presets for Node.js, libraries, React, and Next.js. The goal is a small, strict, independently installable config package with verified TypeScript 6/7 behavior.
 
+## Agent instructions
+
+`AGENTS.md` is the sole agent-instruction source for this repository. Do not add
+`CLAUDE.md` or `.claude` content.
+
 ## Repository map
 
 - `*.json` — published compiler presets; `base.json` owns shared defaults.
