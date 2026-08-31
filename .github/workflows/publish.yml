@@ -81,8 +81,9 @@ jobs:
           npm version "$VERSION" --no-git-tag-version
 
           PACK_RESULT=$(npm pack --ignore-scripts --json --pack-destination "$RUNNER_TEMP")
-          TARBALL_NAME=$(echo "$PACK_RESULT" | node -e 'let input=""; process.stdin.on("data", chunk => input += chunk); process.stdin.on("end", () => console.log(JSON.parse(input)[0].filename))')
-          LOCAL_INTEGRITY=$(echo "$PACK_RESULT" | node -e 'let input=""; process.stdin.on("data", chunk => input += chunk); process.stdin.on("end", () => console.log(JSON.parse(input)[0].integrity))')
+          IFS=$'\t' read -r TARBALL_NAME LOCAL_INTEGRITY < <(
+            echo "$PACK_RESULT" | node -e 'let input=""; process.stdin.on("data", chunk => input += chunk); process.stdin.on("end", () => { const parsed = JSON.parse(input); const item = Array.isArray(parsed) ? parsed[0] : Object.values(parsed)[0]; if (!item?.filename || !item?.integrity) process.exit(1); console.log(`${item.filename}\t${item.integrity}`); })'
+          )
           REMOTE_INTEGRITY=$(npm view "@vllnt/typescript@${VERSION}" dist.integrity 2>/dev/null || true)
 
           if [ -n "$REMOTE_INTEGRITY" ]; then
@@ -136,8 +137,9 @@ jobs:
           unset NODE_AUTH_TOKEN
 
           PACK_RESULT=$(npm pack --ignore-scripts --json --pack-destination "$RUNNER_TEMP")
-          TARBALL_NAME=$(echo "$PACK_RESULT" | node -e 'let input=""; process.stdin.on("data", chunk => input += chunk); process.stdin.on("end", () => console.log(JSON.parse(input)[0].filename))')
-          LOCAL_INTEGRITY=$(echo "$PACK_RESULT" | node -e 'let input=""; process.stdin.on("data", chunk => input += chunk); process.stdin.on("end", () => console.log(JSON.parse(input)[0].integrity))')
+          IFS=$'\t' read -r TARBALL_NAME LOCAL_INTEGRITY < <(
+            echo "$PACK_RESULT" | node -e 'let input=""; process.stdin.on("data", chunk => input += chunk); process.stdin.on("end", () => { const parsed = JSON.parse(input); const item = Array.isArray(parsed) ? parsed[0] : Object.values(parsed)[0]; if (!item?.filename || !item?.integrity) process.exit(1); console.log(`${item.filename}\t${item.integrity}`); })'
+          )
           REMOTE_INTEGRITY=$(npm view "@vllnt/typescript@${VERSION}" dist.integrity 2>/dev/null || true)
 
           if [ -n "$REMOTE_INTEGRITY" ]; then
