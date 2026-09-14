@@ -4,6 +4,10 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+### Changed
+
+- Upgraded the development lint configuration to `@vllnt/eslint-config` 2.0.0.
+
 ## [2.0.0] - 2026-08-31
 
 ### Added
