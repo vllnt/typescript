@@ -6,6 +6,7 @@ All notable changes to this project are documented in this file. The format foll
 
 ### Changed
 
+- Prepared the package base version as `2.0.1` so merges publish `2.0.1-canary.<sha>` to the npm `canary` tag; stable publishing remains a separate manual workflow dispatch.
 - Upgraded the development lint configuration to `@vllnt/eslint-config` 2.0.0.
 - Removed development dependency overrides so clean installs use normal dependency resolution.
 
