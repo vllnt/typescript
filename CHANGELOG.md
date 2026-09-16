@@ -6,6 +6,7 @@ All notable changes to this project are documented in this file. The format foll
 
 ### Changed
 
+- Clarified standalone preset usage and release channels; retained `llms.txt` as the maintained LLM index and removed `llms-full.txt` from the repository and package contents.
 - Upgraded the development lint configuration to `@vllnt/eslint-config` 2.0.0.
 - Removed development dependency overrides so clean installs use normal dependency resolution.
 
