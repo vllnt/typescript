@@ -26,7 +26,6 @@ const expectedPackageFiles = [
   "base.json",
   "CHANGELOG.md",
   "LICENSE",
-  "llms-full.txt",
   "llms.txt",
   "nextjs.json",
   "node-library.json",

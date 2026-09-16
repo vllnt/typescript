@@ -2,6 +2,9 @@
 
 Shared TypeScript configurations for Node.js, libraries, React, and Next.js. Version 2 targets the native TypeScript 7 compiler while retaining a tested TypeScript 6 migration path.
 
+Use these independently in any project; no vllnt monorepo or runtime dependency
+is required. Extend a preset, then supply project-specific paths and ambient types.
+
 ## Install
 
 For TypeScript 7 projects:
@@ -149,6 +152,21 @@ The checks compile every preset with TypeScript 6 and 7, verify declaration emit
 - **Minor:** additive presets or backward-compatible options.
 - **Patch:** fixes, documentation, tests, or CI changes without consumer-visible behavior changes.
 
+## Documentation and support
+
+- [LLM index](llms.txt) · [Changelog](CHANGELOG.md)
+- [Contributing](CONTRIBUTING.md) · [Issues](https://github.com/vllnt/typescript/issues)
+- [Security policy and private reporting](SECURITY.md)
+
+npm `latest` is stable `2.0.0` at this audit. `@canary` selects moving prereleases;
+pin and test them before adoption. The compatibility matrix above describes
+this version's tested integrations, not a requirement to use every framework.
+
+## Author
+
+Built by [bntvllnt](https://github.com/bntvllnt) · [bntvllnt.com](https://bntvllnt.com).
+Part of [@vllnt](https://github.com/vllnt). [Sponsor the work](https://github.com/sponsors/bntvllnt).
+
 ## License
 
-MIT
+[MIT](LICENSE)

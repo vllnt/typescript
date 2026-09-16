@@ -36,8 +36,7 @@
     "node-library.json",
     "react.json",
     "CHANGELOG.md",
-    "llms.txt",
-    "llms-full.txt"
+    "llms.txt"
   ],
   "exports": {
     "./base.json": "./base.json",

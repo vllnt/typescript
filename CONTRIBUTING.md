@@ -22,7 +22,7 @@ pnpm pack --dry-run
 1. Branch from `main` and keep the change focused.
 2. Preserve documented compiler, module, target, and emit behavior unless the change is intentionally breaking.
 3. Add or update compiler fixtures for preset changes.
-4. Update `README.md`, `CHANGELOG.md`, `llms.txt`, and `llms-full.txt` with public behavior.
+4. Update `README.md`, `CHANGELOG.md`, and `llms.txt` with public behavior.
 5. Run `pnpm check` and inspect the package tarball.
 
 Do not bump versions, create tags, publish to npm, or trigger a stable release unless a maintainer explicitly requests it.
