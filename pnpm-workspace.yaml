@@ -3,3 +3,9 @@ packages:
 
 allowBuilds:
   esbuild: true
+
+# Patched releases for transitives that cannot move on their own (eslint-plugin-boundaries@5 pins handlebars 4.7.8; eslint-plugin-functional@9 caps deepmerge-ts at ^7; minimatch@10 stays on brace-expansion 5.0.9).
+overrides:
+  "handlebars@<4.7.10": 4.7.10
+  "deepmerge-ts@<8.0.0": 8.0.0
+  "brace-expansion@>=4.0.0 <5.0.12": 5.0.12

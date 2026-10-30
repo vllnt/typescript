@@ -8,6 +8,7 @@ All notable changes to this project are documented in this file. The format foll
 
 - Upgraded the development lint configuration to `@vllnt/eslint-config` 2.0.0.
 - Removed development dependency overrides so clean installs use normal dependency resolution.
+- Upgraded development and integration-test dependencies and added scoped overrides for patched releases of three transitive development dependencies (`handlebars`, `deepmerge-ts`, `brace-expansion`); the published presets are unchanged.
 
 ## [2.0.0] - 2026-08-31
 
