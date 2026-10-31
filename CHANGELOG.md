@@ -4,12 +4,17 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+## [2.0.1] - Unreleased
+
+The presets are unchanged from 2.0.0.
+
 ### Changed
 
 - Clarified standalone preset usage and release channels; retained `llms.txt` as the maintained LLM index and removed `llms-full.txt` from the repository and package contents.
-- Upgraded the development lint configuration to `@vllnt/eslint-config` 2.0.0.
-- Removed development dependency overrides so clean installs use normal dependency resolution.
-- Upgraded development and integration-test dependencies and added scoped overrides for patched releases of three transitive development dependencies (`handlebars`, `deepmerge-ts`, `brace-expansion`); the published presets are unchanged.
+- Corrected the documented Next.js and React integration versions and the development pnpm version.
+- Stable releases are now published only from a `vX.Y.Z` tag on `main` that matches `package.json` and this changelog; canary releases still publish on every push to `main`. Workflows pin actions, avoid credential persistence, and narrow the secrets passed to the leak gate.
+- Set the pnpm release-age policy in `pnpm-workspace.yaml`, moved to pnpm 11.28.8, and added low-memory development defaults.
+- Upgraded the development lint configuration to `@vllnt/eslint-config` 2.0.0 and refreshed development and integration-test dependencies, with scoped overrides for patched releases of two transitive development dependencies (`handlebars`, `deepmerge-ts`).
 
 ## [2.0.0] - 2026-08-31
 
@@ -41,6 +46,7 @@ All notable changes to this project are documented in this file. The format foll
 - Added `base.json`, `nodejs.json`, `node-library.json`, `react.json`, and `nextjs.json` presets.
 - Documented Node.js 22+ and TypeScript 5+ expectations.
 
-[Unreleased]: https://github.com/vllnt/typescript/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/vllnt/typescript/compare/v2.0.1...HEAD
+[2.0.1]: https://github.com/vllnt/typescript/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/vllnt/typescript/compare/v1.0.0...v2.0.0
 [1.0.0]: https://github.com/vllnt/typescript/releases/tag/v1.0.0
