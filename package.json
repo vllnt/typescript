@@ -49,7 +49,7 @@
   "scripts": {
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "lint": "pnpm check:agents && eslint .",
+    "lint": "pnpm check:agents && eslint --cache --cache-location node_modules/.cache/eslint/ .",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:integration": "pnpm --dir tests/integration/react build && pnpm --dir tests/integration/nextjs build",
