@@ -13,7 +13,7 @@ Public shared TypeScript presets for Node.js, libraries, React, and Next.js. The
 - `tests/fixtures/` — compiler contract fixtures for every preset.
 - `tests/integration/` — real React/Vite and Next.js builds.
 - `scripts/test-utils.mjs` and `tests/configs.test.mjs` — package, compiler, and emit validation.
-- `.github/workflows/` — pull-request checks, canary publishing, and manual stable releases.
+- `.github/workflows/` — pull-request checks, canary publishing on every push to `main`, and stable releases published only from a `vX.Y.Z` tag on `main`.
 - `README.md`, `CHANGELOG.md`, `llms*.txt` — public contract and migration documentation.
 
 ## Invariants
