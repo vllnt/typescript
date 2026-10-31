@@ -7,7 +7,7 @@ minimumReleaseAgeExclude:
   - "@vllnt/*"
 
 allowBuilds:
-  esbuild: true
+  esbuild: false
 
 # Patched releases for transitives that cannot move on their own (eslint-plugin-boundaries@5 pins handlebars 4.7.8; eslint-plugin-functional@9 caps deepmerge-ts at ^7).
 overrides:
