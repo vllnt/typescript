@@ -160,7 +160,7 @@ test("the package tarball has an exact public surface and resolves every preset"
         devDependencies: {
           "@vllnt/typescript": `file:${pack.filename}`,
         },
-        packageManager: "pnpm@11.24.0",
+        packageManager: packageJson.packageManager,
         private: true,
       }),
     );

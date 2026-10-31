@@ -25,7 +25,7 @@
     "config",
     "shared-config"
   ],
-  "packageManager": "pnpm@11.24.0",
+  "packageManager": "pnpm@11.28.8",
   "engines": {
     "node": ">=22"
   },
@@ -54,7 +54,6 @@
     "test:coverage": "vitest run --coverage",
     "test:integration": "pnpm --dir tests/integration/react build && pnpm --dir tests/integration/nextjs build",
     "check": "pnpm format:check && pnpm lint && pnpm test:coverage && pnpm test:integration",
-    "prepublishOnly": "pnpm check",
     "check:agents": "node -e \"const f=require('node:fs');if(!f.existsSync('AGENTS.md')||f.existsSync('CLAUDE.md')||f.existsSync('.claude'))process.exit(1)\""
   },
   "peerDependencies": {

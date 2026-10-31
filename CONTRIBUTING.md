@@ -5,7 +5,7 @@ Thank you for helping improve the shared TypeScript presets.
 ## Requirements
 
 - Node.js 22.13 or newer
-- pnpm 11.24.0
+- pnpm 11.28.8
 
 ## Development
 
@@ -25,4 +25,14 @@ pnpm pack --dry-run
 4. Update `README.md`, `CHANGELOG.md`, and `llms.txt` with public behavior.
 5. Run `pnpm check` and inspect the package tarball.
 
-Do not bump versions, create tags, publish to npm, or trigger a stable release unless a maintainer explicitly requests it.
+## Releases
+
+Maintainers only. Every publish runs in `.github/workflows/publish.yml` with npm trusted
+publishing and provenance; nothing is published from a local machine.
+
+- Canary (`@canary`): every push to `main` that touches the package publishes one; it can
+  also be run manually on `main`.
+- Stable (`@latest`): merge a PR that sets `package.json` `version` and adds a matching
+  `## [X.Y.Z]` entry to `CHANGELOG.md`, then push the tag `vX.Y.Z` on that `main` commit.
+
+Do not bump versions, create tags, or publish unless a maintainer explicitly requests it.

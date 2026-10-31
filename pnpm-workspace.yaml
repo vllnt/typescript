@@ -1,6 +1,11 @@
 packages:
   - tests/integration/*
 
+# Supply-chain policy (pnpm 11 reads these from this file, not from package.json).
+minimumReleaseAge: 10080
+minimumReleaseAgeExclude:
+  - "@vllnt/*"
+
 allowBuilds:
   esbuild: true
 
