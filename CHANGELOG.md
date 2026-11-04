@@ -16,7 +16,7 @@ All notable changes to this project are documented in this file. The format foll
 
 ### Fixed
 
-- `nodejs.json` and `react.json` no longer enable `incremental`. With it, a clean build that deleted only the output directory could reuse a stale `.tsbuildinfo` and emit nothing, so a package could be published empty. Projects that want incremental builds can set `incremental: true` themselves. `nextjs.json` keeps `incremental` because it does not emit. A new test runs a clean build for every emitting preset with a stale `.tsbuildinfo` left in place.
+- `nodejs.json` and `react.json` no longer enable `incremental`. With it, a clean build that deleted only the output directory could reuse a leftover `.tsbuildinfo` and emit nothing, so a package could be published empty. Builds using these presets are no longer incremental by default, and `tsc` no longer writes a `.tsbuildinfo` for them. To restore that, set `incremental: true` in your project; setting only `tsBuildInfoFile` is not enough. `nextjs.json` keeps `incremental` because it does not emit.
 
 ## [2.0.0] - 2026-08-31
 
