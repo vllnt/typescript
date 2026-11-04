@@ -6,8 +6,6 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [2.0.1] - Unreleased
 
-The presets are unchanged from 2.0.0.
-
 ### Changed
 
 - Clarified standalone preset usage and release channels; retained `llms.txt` as the maintained LLM index and removed `llms-full.txt` from the repository and package contents.
@@ -15,6 +13,10 @@ The presets are unchanged from 2.0.0.
 - Stable releases are now published only from a `vX.Y.Z` tag on `main` that matches `package.json` and this changelog; canary releases still publish on every push to `main`. Workflows pin actions, avoid credential persistence, and narrow the secrets passed to the leak gate.
 - Set the pnpm release-age policy in `pnpm-workspace.yaml`, moved to pnpm 11.28.8, and added low-memory development defaults.
 - Upgraded the development lint configuration to `@vllnt/eslint-config` 2.0.0 and refreshed development and integration-test dependencies, with scoped overrides for patched releases of two transitive development dependencies (`handlebars`, `deepmerge-ts`).
+
+### Fixed
+
+- `nodejs.json` and `react.json` no longer enable `incremental`. With it, a clean build that deleted only the output directory could reuse a stale `.tsbuildinfo` and emit nothing, so a package could be published empty. Projects that want incremental builds can set `incremental: true` themselves. `nextjs.json` keeps `incremental` because it does not emit. A new test runs a clean build for every emitting preset with a stale `.tsbuildinfo` left in place.
 
 ## [2.0.0] - 2026-08-31
 

@@ -110,6 +110,8 @@ Every specialized preset inherits:
 
 Ambient type packages are intentionally opt-in. List every required package in the consuming project's `types` array. Emitting projects must also set `rootDir` explicitly.
 
+Emitting presets do not enable `incremental`, so a clean build always emits every output, even when a `.tsbuildinfo` file is left over. To opt in, set `incremental: true` in your own project. Before a clean build, delete the `.tsbuildinfo` file together with the output directory.
+
 `stableTypeOrdering` aligns TypeScript 6 output with TypeScript 7. It can make TypeScript 6 type-checking slower; TypeScript 7 always uses stable ordering.
 
 ## Migrating from version 1
