@@ -153,6 +153,7 @@ The checks compile every preset with TypeScript 6 and 7, verify declaration emit
 - **Major:** raised TypeScript floor, stricter diagnostics, target/module/emit changes, or removed/renamed presets.
 - **Minor:** additive presets or backward-compatible options.
 - **Patch:** fixes, documentation, tests, or CI changes without consumer-visible behavior changes.
+- **Build-cache exception:** a patch may remove a build-cache default, such as `incremental`, that makes builds emit wrong or missing output. JavaScript, declaration, and source-map output of a clean build and all diagnostics must stay the same. The changelog states the cache effect and how to opt back in. 2.0.1 uses this exception.
 
 ## Documentation and support
 
