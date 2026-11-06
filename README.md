@@ -37,6 +37,8 @@ This is the [official side-by-side migration arrangement](https://devblogs.micro
 | `react.json`        | Bundled React applications           | Bundler           | ES2022    | JavaScript, declarations, source maps |
 | `nextjs.json`       | Next.js applications                 | Bundler           | ES2022    | None                                  |
 
+Emitting presets do not enable `incremental`. Unless you opt in, a clean build emits every output even when a `.tsbuildinfo` file is left over. If you set `incremental: true`, delete the `.tsbuildinfo` file together with the output directory before a clean build. `nextjs.json` keeps `incremental` because it does not emit; if you override `noEmit`, also set `incremental: false`.
+
 ### Node.js application
 
 ```json
@@ -151,6 +153,7 @@ The checks compile every preset with TypeScript 6 and 7, verify declaration emit
 - **Major:** raised TypeScript floor, stricter diagnostics, target/module/emit changes, or removed/renamed presets.
 - **Minor:** additive presets or backward-compatible options.
 - **Patch:** fixes, documentation, tests, or CI changes without consumer-visible behavior changes.
+- **Build-cache exception:** a patch may remove a build-cache default, such as `incremental`, that makes builds emit wrong or missing output. JavaScript, declaration, and source-map output of a clean build and all diagnostics must stay the same. The changelog states the cache effect and how to opt back in. 2.0.1 uses this exception.
 
 ## Documentation and support
 

@@ -1,4 +1,5 @@
 import {
+  existsSync,
   mkdirSync,
   mkdtempSync,
   readdirSync,
@@ -22,6 +23,10 @@ import {
 } from "../scripts/test-utils.mjs";
 
 const packageJson = loadJson(join(root, "package.json"));
+// Presets set noEmit directly rather than inheriting it, so the raw file is enough.
+const emittingPresets = presets.filter(
+  (preset) => !loadJson(join(root, `${preset}.json`)).compilerOptions.noEmit,
+);
 const expectedPackageFiles = [
   "base.json",
   "CHANGELOG.md",
@@ -134,6 +139,47 @@ describe.each(compilers)("$label", (compiler) => {
       rmSync(outputDirectory, { force: true, recursive: true });
     }
   });
+
+  test.each(emittingPresets)(
+    "%s emits on a clean build despite a leftover .tsbuildinfo",
+    (preset) => {
+      const project = mkdtempSync(join(tmpdir(), "vllnt-ts-clean-build-"));
+      const tsconfig = join(project, "tsconfig.json");
+      const outputDirectory = join(project, "dist");
+      try {
+        mkdirSync(join(project, "src"));
+        writeFileSync(
+          join(project, "src", "index.ts"),
+          "export const value: number = 1;\n",
+        );
+        writeFileSync(
+          tsconfig,
+          JSON.stringify({
+            // rootDir keeps the .tsbuildinfo in the project root, outside dist.
+            compilerOptions: { outDir: "dist", rootDir: "src" },
+            extends: join(root, `${preset}.json`),
+            include: ["src"],
+          }),
+        );
+
+        // An earlier incremental build leaves its .tsbuildinfo behind.
+        runCompiler(compiler, ["--project", tsconfig, "--incremental"]);
+        expect(readdirSync(project)).toContain("tsconfig.tsbuildinfo");
+        const outputs = readdirSync(outputDirectory).sort();
+        expect(outputs).toContain("index.js");
+
+        // A rebuild after deleting the output directory must emit every file again.
+        rmSync(outputDirectory, { force: true, recursive: true });
+        runCompiler(compiler, ["--project", tsconfig]);
+        expect(existsSync(outputDirectory), "the rebuild emitted nothing").toBe(
+          true,
+        );
+        expect(readdirSync(outputDirectory).sort()).toEqual(outputs);
+      } finally {
+        rmSync(project, { force: true, recursive: true });
+      }
+    },
+  );
 });
 
 test("TypeScript 6 remains available to JavaScript API consumers", async () => {

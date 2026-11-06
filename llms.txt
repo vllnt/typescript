@@ -28,3 +28,4 @@ prereleases. See [Contributing](CONTRIBUTING.md) and the [Security policy](SECUR
 - `@vllnt/typescript/nextjs.json`: no-emit Next.js applications
 
 Consumers should list required ambient packages in `types` and set `rootDir` in emitting projects.
+Emitting presets do not enable `incremental`, so a clean build emits every output even when a `.tsbuildinfo` file is left over. Projects that set `incremental: true` should delete the `.tsbuildinfo` file with the output directory before a clean build.
