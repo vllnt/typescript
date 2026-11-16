@@ -23,7 +23,7 @@ The flags add diagnostics and leave JavaScript output unchanged, but inferred de
 - Declaration emit under `exactOptionalPropertyTypes`: the `.d.ts` that TypeScript infers can differ. For example, an inferred `count?: number | undefined` is emitted as `count?: number`. Libraries that publish declarations should compare their `.d.ts` output when upgrading.
 - To adopt them one at a time, set a flag to `false` in your own `compilerOptions` after `extends`.
 
-## [2.0.1] - Unreleased
+## [2.0.1] - 2026-11-16
 
 ### Changed
 
