@@ -102,6 +102,10 @@ Every specialized preset inherits:
 - `isolatedModules: true`
 - `noUncheckedIndexedAccess: true`
 - `noUncheckedSideEffectImports: true`
+- `noImplicitOverride: true`
+- `noImplicitReturns: true`
+- `noFallthroughCasesInSwitch: true`
+- `exactOptionalPropertyTypes: true`
 - `forceConsistentCasingInFileNames: true`
 - `skipLibCheck: true`
 - `esModuleInterop: true`
@@ -113,6 +117,36 @@ Every specialized preset inherits:
 Ambient type packages are intentionally opt-in. List every required package in the consuming project's `types` array. Emitting projects must also set `rootDir` explicitly.
 
 `stableTypeOrdering` aligns TypeScript 6 output with TypeScript 7. It can make TypeScript 6 type-checking slower; TypeScript 7 always uses stable ordering.
+
+## Migrating from version 2
+
+Version 3 turns on four more flags in `base.json`, so every preset inherits them. Each one only adds diagnostics; none changes emitted JavaScript or declarations. Run `tsc --noEmit` after upgrading and fix what it reports:
+
+| Flag                         | What it catches                                                                        | Usual fix                                                                                                   |
+| ---------------------------- | -------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `noImplicitOverride`         | A method that replaces a base-class method without saying so (TS4114)                  | Add the `override` modifier, or rename the method if it was not meant to replace the base one.              |
+| `noImplicitReturns`          | A function that returns a value on some paths and falls off the end on others (TS7030) | Add the missing `return` (`return undefined;` if that is intended).                                         |
+| `noFallthroughCasesInSwitch` | A non-empty `case` that runs into the next one (TS7029)                                | End the case with `break`, `return` or `throw`. Empty cases that share a body are still allowed.            |
+| `exactOptionalPropertyTypes` | Assigning `undefined` to a property declared `prop?: T` (TS2375, TS2379, TS2322)       | Write `prop?: T \| undefined` if `undefined` is a valid value, or leave the key out when there is no value. |
+
+`exactOptionalPropertyTypes` is the one most likely to need many edits. `prop?: T` now means "the key may be missing", not "the value may be undefined":
+
+```ts
+interface Options {
+  name?: string;
+}
+
+const a: Options = { name: undefined }; // error
+const b: Options = {}; // omit the key
+
+function build(name: string | undefined): Options {
+  return name === undefined ? {} : { name }; // add the key only when it is set
+}
+```
+
+The same applies to call arguments and to props you pass to libraries: `use({ name: undefined })` is an error when the parameter's type does not list `undefined`. Widen your own types, or build the object without the key.
+
+To adopt the flags one at a time, set the ones you are not ready for to `false` in your own `compilerOptions` (after `extends`) and remove the override as you fix each one. The fixtures in `tests/fixtures/flags` show a failing and an accepted form of each pattern.
 
 ## Migrating from version 1
 
@@ -146,7 +180,7 @@ pnpm check
 pnpm pack --dry-run
 ```
 
-The checks compile every preset with TypeScript 6 and 7, verify declaration emit, install and compile the packed package, enforce full test-helper coverage, and build real React/Vite and Next.js fixtures.
+The checks compile every preset with TypeScript 6 and 7, prove that each inherited strictness flag is active, verify declaration emit, install and compile the packed package, enforce full test-helper coverage, and build real React/Vite and Next.js fixtures.
 
 ## Versioning
 

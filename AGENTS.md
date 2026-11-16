@@ -10,7 +10,7 @@ Public shared TypeScript presets for Node.js, libraries, React, and Next.js. The
 ## Repository map
 
 - `*.json` — published compiler presets; `base.json` owns shared defaults.
-- `tests/fixtures/` — compiler contract fixtures for every preset.
+- `tests/fixtures/` — compiler contract fixtures for every preset; `flags/` holds one failing fixture per strictness flag that `base.json` turns on, plus an accepted form of each.
 - `tests/integration/` — real React/Vite and Next.js builds.
 - `scripts/test-utils.mjs` and `tests/configs.test.mjs` — package, compiler, and emit validation.
 - `.github/workflows/` — pull-request checks, canary publishing on every push to `main`, and stable releases published only from a `vX.Y.Z` tag on `main`.
