@@ -3,6 +3,7 @@ import {
   mkdirSync,
   mkdtempSync,
   readdirSync,
+  readFileSync,
   rmSync,
   writeFileSync,
 } from "node:fs";
@@ -27,6 +28,19 @@ const packageJson = loadJson(join(root, "package.json"));
 const emittingPresets = presets.filter(
   (preset) => !loadJson(join(root, `${preset}.json`)).compilerOptions.noEmit,
 );
+// Each flag the base preset turns on, with the fixture that breaks that flag
+// and the diagnostic the fixture must raise.
+const strictFlags = {
+  exactOptionalPropertyTypes: { code: "TS2375", file: "exact-optional.ts" },
+  noFallthroughCasesInSwitch: { code: "TS7029", file: "fallthrough.ts" },
+  noImplicitOverride: { code: "TS4114", file: "override.ts" },
+  noImplicitReturns: { code: "TS7030", file: "implicit-return.ts" },
+};
+const flagFixtures = join(fixtures, "flags");
+const flagSources = join(flagFixtures, "src");
+const flagDiagnostics = Object.values(strictFlags)
+  .map(({ code, file }) => `${file} ${code}`)
+  .sort();
 const expectedPackageFiles = [
   "base.json",
   "CHANGELOG.md",
@@ -71,6 +85,9 @@ describe("public presets", () => {
         target: "es2022",
       },
     };
+    const inheritedFlags = Object.fromEntries(
+      Object.keys(strictFlags).map((flag) => [flag, true]),
+    );
 
     for (const compiler of compilers) {
       for (const preset of presets) {
@@ -79,9 +96,10 @@ describe("public presets", () => {
           join(fixtures, preset, "tsconfig.json"),
           "--showConfig",
         ]);
-        expect(loadJsonFromOutput(output).compilerOptions).toMatchObject(
-          expected[preset],
-        );
+        expect(loadJsonFromOutput(output).compilerOptions).toMatchObject({
+          ...inheritedFlags,
+          ...expected[preset],
+        });
       }
     }
   });
@@ -112,6 +130,50 @@ describe.each(compilers)("$label", (compiler) => {
     } finally {
       rmSync(buildInfoDirectory, { force: true, recursive: true });
     }
+  });
+
+  test.each(presets)(
+    "%s reports the diagnostics of every stricter base flag and nothing else",
+    (preset) => {
+      expect(typeCheckFlagFixtures(compiler, preset)).toEqual(flagDiagnostics);
+    },
+  );
+
+  test.each(Object.entries(strictFlags))(
+    "%s alone is responsible for its diagnostic",
+    (flag, { code, file }) => {
+      expect(
+        typeCheckFlagFixtures(compiler, "base", [`--${flag}`, "false"]),
+      ).toEqual(flagDiagnostics.filter((entry) => entry !== `${file} ${code}`));
+    },
+  );
+
+  test("the flags leave JavaScript unchanged, and inferred declarations can differ", () => {
+    const withFlags = emitFlagFixtures(compiler);
+    const withoutFlags = emitFlagFixtures(
+      compiler,
+      Object.keys(strictFlags).flatMap((flag) => [`--${flag}`, "false"]),
+    );
+    const declarations = "emit/declarations.d.ts";
+
+    expect([...withFlags.keys()].sort()).toEqual([
+      "emit/declarations.d.ts",
+      "emit/declarations.js",
+      "src/compliant.d.ts",
+      "src/compliant.js",
+    ]);
+    expect([...withoutFlags.keys()].sort()).toEqual(
+      [...withFlags.keys()].sort(),
+    );
+    for (const [file, content] of withFlags) {
+      if (file !== declarations) {
+        expect(withoutFlags.get(file), file).toBe(content);
+      }
+    }
+    expect(withFlags.get(declarations)).toContain("count?: number;");
+    expect(withoutFlags.get(declarations)).toContain(
+      "count?: number | undefined;",
+    );
   });
 
   test("preserves node-library emit behavior", () => {
@@ -246,4 +308,74 @@ test("command failures retain actionable diagnostics", () => {
 
 function loadJsonFromOutput(output) {
   return JSON.parse(output);
+}
+
+// Emits the compliant fixture and the declaration fixture with the node-library
+// preset and returns a map of "<path>" to content for every .js and .d.ts file.
+function emitFlagFixtures(compiler, extraArguments = []) {
+  const project = mkdtempSync(join(tmpdir(), "vllnt-ts-flags-emit-"));
+  try {
+    const tsconfig = join(project, "tsconfig.json");
+    const outputDirectory = join(project, "out");
+    writeFileSync(
+      tsconfig,
+      JSON.stringify({
+        compilerOptions: { outDir: outputDirectory, rootDir: flagFixtures },
+        extends: join(root, "node-library.json"),
+        files: [
+          join(flagSources, "compliant.ts"),
+          join(flagFixtures, "emit", "declarations.ts"),
+        ],
+      }),
+    );
+    runCompiler(compiler, ["--project", tsconfig, ...extraArguments]);
+    return new Map(
+      readdirSync(outputDirectory, { recursive: true })
+        .filter((file) => /\.(js|d\.ts)$/.test(file))
+        .map((file) => [
+          file.replaceAll("\\", "/"),
+          readFileSync(join(outputDirectory, file), "utf8"),
+        ]),
+    );
+  } finally {
+    rmSync(project, { force: true, recursive: true });
+  }
+}
+
+// Type-checks tests/fixtures/flags under a preset and returns the sorted
+// "<file> <code>" of every diagnostic. A failure with no diagnostic (a bad
+// config, a missing file) is rethrown so it cannot pass as "no errors".
+function typeCheckFlagFixtures(compiler, preset, extraArguments = []) {
+  const project = mkdtempSync(join(tmpdir(), "vllnt-ts-flags-"));
+  try {
+    const tsconfig = join(project, "tsconfig.json");
+    writeFileSync(
+      tsconfig,
+      JSON.stringify({
+        compilerOptions: { noEmit: true },
+        extends: join(root, `${preset}.json`),
+        files: readdirSync(flagSources).map((name) => join(flagSources, name)),
+      }),
+    );
+    try {
+      runCompiler(compiler, [
+        "--project",
+        tsconfig,
+        "--pretty",
+        "false",
+        ...extraArguments,
+      ]);
+      return [];
+    } catch (error) {
+      const diagnostics = [
+        ...error.message.matchAll(/([^/\\]+)\(\d+,\d+\): error (TS\d+):/g),
+      ].map(([, file, code]) => `${file} ${code}`);
+      if (diagnostics.length === 0) {
+        throw error;
+      }
+      return diagnostics.sort();
+    }
+  } finally {
+    rmSync(project, { force: true, recursive: true });
+  }
 }

@@ -9,7 +9,7 @@
 - License: MIT
 
 Install independently in any project; no vllnt monorepo is required. npm latest
-is stable 2.0.0 at this audit; canary is a moving prerelease channel. Pin and test
+is stable 3.0.0 at this audit; canary is a moving prerelease channel. Pin and test
 prereleases. See [Contributing](CONTRIBUTING.md) and the [Security policy](SECURITY.md).
 
 ## Compatibility
@@ -29,3 +29,16 @@ prereleases. See [Contributing](CONTRIBUTING.md) and the [Security policy](SECUR
 
 Consumers should list required ambient packages in `types` and set `rootDir` in emitting projects.
 Emitting presets do not enable `incremental`, so a clean build emits every output even when a `.tsbuildinfo` file is left over. Projects that set `incremental: true` should delete the `.tsbuildinfo` file with the output directory before a clean build.
+
+## Strictness inherited from base.json
+
+Every preset enables `strict`, `noUncheckedIndexedAccess`, `noUncheckedSideEffectImports`, `noImplicitOverride`, `noImplicitReturns`, `noFallthroughCasesInSwitch` and `exactOptionalPropertyTypes`.
+
+Migrating from version 2 (the last four flags are new):
+
+- `noImplicitOverride` (TS4114): add `override` to a method that replaces a base-class method.
+- `noImplicitReturns` (TS7030): return on every path; use `return undefined;` when that is intended.
+- `noFallthroughCasesInSwitch` (TS7029): end a non-empty `case` with `break`, `return` or `throw`.
+- `exactOptionalPropertyTypes` (TS2375, TS2379, TS2322): write `prop?: T | undefined` where `undefined` is a valid value, or omit the key.
+- JavaScript output does not change. Under `exactOptionalPropertyTypes`, inferred declarations can: `count?: number | undefined` is emitted as `count?: number`.
+- To adopt them gradually, set a flag to `false` in the project's own `compilerOptions` after `extends`.
