@@ -4,6 +4,8 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+## [3.0.0] - 2026-11-16
+
 ### Added
 
 - `base.json` enables `noImplicitOverride`, `noImplicitReturns`, `noFallthroughCasesInSwitch` and `exactOptionalPropertyTypes`, so every preset inherits them. Fixtures in `tests/fixtures/flags` prove under TypeScript 6 and 7, in every preset, that each flag is active and is the only cause of its diagnostic, and that JavaScript output is the same with the flags on and off.
@@ -14,7 +16,7 @@ All notable changes to this project are documented in this file. The format foll
 
 ### Breaking
 
-The flags add diagnostics and leave JavaScript output unchanged, but inferred declarations can differ (see the last flag below). This is a major change under the Versioning policy and is intended for the next major release (3.0.0). See [Migrating from version 2](README.md#migrating-from-version-2).
+The flags add diagnostics and leave JavaScript output unchanged, but inferred declarations can differ (see the last flag below). This is a major change under the Versioning policy. See [Migrating from version 2](README.md#migrating-from-version-2).
 
 - `noImplicitOverride`: a method that replaces a base-class method needs the `override` modifier (TS4114).
 - `noImplicitReturns`: a function that returns a value on some paths must return on all of them (TS7030). Add the missing `return`, or `return undefined;`.

@@ -9,7 +9,7 @@
 - License: MIT
 
 Install independently in any project; no vllnt monorepo is required. npm latest
-is stable 2.0.0 at this audit; canary is a moving prerelease channel. Pin and test
+is stable 3.0.0 at this audit; canary is a moving prerelease channel. Pin and test
 prereleases. See [Contributing](CONTRIBUTING.md) and the [Security policy](SECURITY.md).
 
 ## Compatibility

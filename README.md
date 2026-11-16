@@ -10,7 +10,7 @@ is required. Extend a preset, then supply project-specific paths and ambient typ
 For TypeScript 7 projects:
 
 ```sh
-pnpm add --save-dev @vllnt/typescript@^2 typescript@^7
+pnpm add --save-dev @vllnt/typescript@^3 typescript@^7
 ```
 
 For tools that still require the TypeScript JavaScript API, install TypeScript 7 as the build compiler and TypeScript 6 under the canonical package name:
@@ -19,7 +19,7 @@ For tools that still require the TypeScript JavaScript API, install TypeScript 7
 {
   "devDependencies": {
     "@typescript/native": "npm:typescript@^7.0.2",
-    "@vllnt/typescript": "^2.0.0",
+    "@vllnt/typescript": "^3.0.0",
     "typescript": "npm:@typescript/typescript6@^6.0.2"
   }
 }
@@ -197,7 +197,7 @@ The checks compile every preset with TypeScript 6 and 7, prove that each inherit
 - [Contributing](CONTRIBUTING.md) · [Issues](https://github.com/vllnt/typescript/issues)
 - [Security policy and private reporting](SECURITY.md)
 
-npm `latest` is stable `2.0.0` at this audit. `@canary` selects moving prereleases;
+npm `latest` is stable `3.0.0` at this audit. `@canary` selects moving prereleases;
 pin and test them before adoption. The compatibility matrix above describes
 this version's tested integrations, not a requirement to use every framework.
 
