@@ -134,7 +134,7 @@ TypeScript 7 also removes ES5 targeting, legacy module formats and resolution, `
 | Node.js consumers      | `>=22`                                                  |
 | TypeScript             | `>=6.0.2 <8`                                            |
 | Tested compilers       | TypeScript 6 compatibility package and TypeScript 7.0.2 |
-| Next.js integration    | 16.4.3                                                  |
+| Next.js integration    | 16.4.5                                                  |
 | React integration      | 19.3.1                                                  |
 | Repository development | Node.js 22.13+, pnpm 11.28.8                            |
 
