@@ -5,6 +5,8 @@ packages:
 minimumReleaseAge: 10080
 minimumReleaseAgeExclude:
   - "@vllnt/*"
+  # 2026-11-16: the maintainer authorized prettier 3.10.1 (published 2026-11-12) before the 7-day window ends. Exact version only; remove this entry after 2026-11-19, when 3.10.1 is old enough.
+  - "prettier@3.10.1"
 
 allowBuilds:
   esbuild: false
