@@ -7,6 +7,7 @@ settings:
 overrides:
   handlebars@<4.7.10: 4.7.10
   deepmerge-ts@<8.0.0: 8.0.2
+  minimatch@>=7.0.0 <11.0.1: 11.0.5
 
 importers:
   .:
@@ -822,6 +823,12 @@ packages:
     engines: { node: ">=20.9.0" }
     cpu: [x64]
     os: [win32]
+
+  "@isaacs/nonrecursive-glob-match@1.1.0":
+    resolution:
+      {
+        integrity: sha512-GPm/Dbvk5RLmhRnxXIa7nTpK0xtl4E0wj0MslsuNiJ1FIROU+2+9lgUC/dgF7Ey4QCWhfEsgxilMRMCdHPfDfw==,
+      }
 
   "@jridgewell/gen-mapping@0.3.13":
     resolution:
@@ -3241,12 +3248,12 @@ packages:
       }
     engines: { node: ">=8.6" }
 
-  minimatch@10.2.6:
+  minimatch@11.0.5:
     resolution:
       {
-        integrity: sha512-vpLQEs+VLCr1nU0BXS07maYoFwlDAH0gngQuuttxIwutDFEMHq2blX+8vpgxDdK3J1PwjCJiep77OitTZ4Ll1A==,
+        integrity: sha512-snPlVppFcYWfLLFQGhDxUyBcHNtMlWmn3jtj7pEaO+DP8pqL0IvAzXhMYmn1z9ASNtgmwLBdFxSf4tMUB0OTKA==,
       }
-    engines: { node: 18 || 20 || >=22 }
+    engines: { node: 20 || >=22 }
 
   minimatch@3.1.5:
     resolution:
@@ -4653,6 +4660,8 @@ snapshots:
   "@img/sharp-win32-x64@0.35.5":
     optional: true
 
+  "@isaacs/nonrecursive-glob-match@1.1.0": {}
+
   "@jridgewell/gen-mapping@0.3.13":
     dependencies:
       "@jridgewell/sourcemap-codec": 1.6.0
@@ -4900,7 +4909,7 @@ snapshots:
       "@typescript-eslint/types": 8.58.2
       "@typescript-eslint/visitor-keys": 8.58.2
       debug: 4.4.3(supports-color@7.2.0)
-      minimatch: 10.2.6
+      minimatch: 11.0.5
       semver: 7.8.5
       tinyglobby: 0.2.17
       ts-api-utils: 2.5.0(@typescript/typescript6@6.0.2)
@@ -4915,7 +4924,7 @@ snapshots:
       "@typescript-eslint/types": 8.68.0
       "@typescript-eslint/visitor-keys": 8.68.0
       debug: 4.4.3(supports-color@7.2.0)
-      minimatch: 10.2.6
+      minimatch: 11.0.5
       semver: 7.8.5
       tinyglobby: 0.2.17
       ts-api-utils: 2.5.0(@typescript/typescript6@6.0.2)
@@ -6180,8 +6189,9 @@ snapshots:
       braces: 3.0.3
       picomatch: 2.3.2
 
-  minimatch@10.2.6:
+  minimatch@11.0.5:
     dependencies:
+      "@isaacs/nonrecursive-glob-match": 1.1.0
       brace-expansion: 5.0.12
 
   minimatch@3.1.5:

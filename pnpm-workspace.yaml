@@ -11,7 +11,8 @@ minimumReleaseAgeExclude:
 allowBuilds:
   esbuild: false
 
-# Patched releases for transitives that cannot move on their own (eslint-plugin-boundaries@5 pins handlebars 4.7.8; eslint-plugin-functional@9 caps deepmerge-ts at ^7).
+# Patched releases for transitives that cannot move on their own (eslint-plugin-boundaries@5 pins handlebars 4.7.8; eslint-plugin-functional@9 caps deepmerge-ts at ^7; @typescript-eslint/typescript-estree up to 8.72 uses minimatch ^10, and @convex-dev/eslint-plugin@4 pins @typescript-eslint/utils ~8.58 so it cannot take estree 8.73, which uses minimatch ^11). The minimatch range is the advisory range (GHSA-g3hv-75wg-m249), so the minimatch 3 that eslint uses is untouched. 11.0.5 is the newest 11.x past the 7-day release age on 2026-11-16. Remove it when the lockfile has no minimatch below 11.0.1.
 overrides:
   "handlebars@<4.7.10": 4.7.10
   "deepmerge-ts@<8.0.0": 8.0.2
+  "minimatch@>=7.0.0 <11.0.1": 11.0.5
