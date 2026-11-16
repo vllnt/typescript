@@ -120,7 +120,7 @@ Ambient type packages are intentionally opt-in. List every required package in t
 
 ## Migrating from version 2
 
-Version 3 turns on four more flags in `base.json`, so every preset inherits them. Each one only adds diagnostics; none changes emitted JavaScript or declarations. Run `tsc --noEmit` after upgrading and fix what it reports:
+Version 3 turns on four more flags in `base.json`, so every preset inherits them. Each one adds diagnostics, and none changes JavaScript output. `exactOptionalPropertyTypes` can change inferred declarations (see below). Run `tsc --noEmit` after upgrading and fix what it reports:
 
 | Flag                         | What it catches                                                                        | Usual fix                                                                                                   |
 | ---------------------------- | -------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
@@ -145,6 +145,8 @@ function build(name: string | undefined): Options {
 ```
 
 The same applies to call arguments and to props you pass to libraries: `use({ name: undefined })` is an error when the parameter's type does not list `undefined`. Widen your own types, or build the object without the key.
+
+`exactOptionalPropertyTypes` also changes declaration emit. When TypeScript infers a type that has an optional property, it now prints `count?: number` where it used to print `count?: number | undefined`. Types you annotate yourself are copied as written. If you publish a library, compare the `.d.ts` files before and after upgrading.
 
 To adopt the flags one at a time, set the ones you are not ready for to `false` in your own `compilerOptions` (after `extends`) and remove the override as you fix each one. The fixtures in `tests/fixtures/flags` show a failing and an accepted form of each pattern.
 

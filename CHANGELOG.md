@@ -6,20 +6,17 @@ All notable changes to this project are documented in this file. The format foll
 
 ### Added
 
-- `base.json` enables `noImplicitOverride`, `noImplicitReturns`, `noFallthroughCasesInSwitch` and `exactOptionalPropertyTypes`, so every preset inherits them. Fixtures in `tests/fixtures/flags` prove under TypeScript 6 and 7, in every preset, that each flag is active and is the only cause of its diagnostic.
-
-### Changed
-
-- Bumped the Next.js integration fixture from 16.4.3 to 16.4.5. Next 16.4.3 is inside the range of a published security advisory (`>=16.3.0 <=16.4.4`), and Next refuses to build with it.
+- `base.json` enables `noImplicitOverride`, `noImplicitReturns`, `noFallthroughCasesInSwitch` and `exactOptionalPropertyTypes`, so every preset inherits them. Fixtures in `tests/fixtures/flags` prove under TypeScript 6 and 7, in every preset, that each flag is active and is the only cause of its diagnostic, and that JavaScript output is the same with the flags on and off.
 
 ### Breaking
 
-These flags add diagnostics only; emitted JavaScript and declarations do not change. This is a major change under the Versioning policy and is intended for the next major release (3.0.0). See [Migrating from version 2](README.md#migrating-from-version-2).
+The flags add diagnostics and leave JavaScript output unchanged, but inferred declarations can differ (see the last flag below). This is a major change under the Versioning policy and is intended for the next major release (3.0.0). See [Migrating from version 2](README.md#migrating-from-version-2).
 
 - `noImplicitOverride`: a method that replaces a base-class method needs the `override` modifier (TS4114).
 - `noImplicitReturns`: a function that returns a value on some paths must return on all of them (TS7030). Add the missing `return`, or `return undefined;`.
 - `noFallthroughCasesInSwitch`: a non-empty `case` must end with `break`, `return` or `throw` (TS7029). Empty cases that share a body are unaffected.
 - `exactOptionalPropertyTypes`: `prop?: T` no longer accepts an explicit `undefined` (TS2375, TS2379, TS2322). Write `prop?: T | undefined`, or leave the key out.
+- Declaration emit under `exactOptionalPropertyTypes`: the `.d.ts` that TypeScript infers can differ. For example, an inferred `count?: number | undefined` is emitted as `count?: number`. Libraries that publish declarations should compare their `.d.ts` output when upgrading.
 - To adopt them one at a time, set a flag to `false` in your own `compilerOptions` after `extends`.
 
 ## [2.0.1] - Unreleased
