@@ -4,6 +4,10 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+### Changed
+
+- Upgraded the development dependencies `vitest` and `@vitest/coverage-v8` to 5.1.0 and `prettier` to 3.10.1, and added a scoped override to a patched `minimatch` 11 for GHSA-g3hv-75wg-m249 (moderate, reached only through the development lint toolchain). `prettier` 3.10.1 is installed through a version-scoped exception to the 7-day release-age rule in `pnpm-workspace.yaml`, removable after 2026-11-19. Removed the unused root development dependency `@types/react-dom` (the integration fixtures declare their own). Presets and the packed file list are unchanged.
+
 ## [3.0.0] - 2026-11-16
 
 ### Added
