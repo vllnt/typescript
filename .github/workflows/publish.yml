@@ -72,6 +72,9 @@ jobs:
           "$RUNNER_TEMP/npm-cli/bin/npm" --version
           echo "$RUNNER_TEMP/npm-cli/bin" >> "$GITHUB_PATH"
 
+      - name: Check package contents
+        working-directory: ${{ github.workspace }}
+        run: bash scripts/check-package-contents.sh
       - name: Publish canary
         run: |
           set -euo pipefail
@@ -140,6 +143,9 @@ jobs:
           "$RUNNER_TEMP/npm-cli/bin/npm" --version
           echo "$RUNNER_TEMP/npm-cli/bin" >> "$GITHUB_PATH"
 
+      - name: Check package contents
+        working-directory: ${{ github.workspace }}
+        run: bash scripts/check-package-contents.sh
       - name: Publish or reconcile npm package
         run: |
           set -euo pipefail
