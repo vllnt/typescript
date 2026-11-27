@@ -16,6 +16,7 @@ import { describe, expect, test } from "vitest";
 import {
   compilers,
   fixtures,
+  installPackedConsumer,
   loadJson,
   presets,
   root,
@@ -256,30 +257,8 @@ test("TypeScript 6 remains available to JavaScript API consumers", async () => {
 test("the package tarball has an exact public surface and resolves every preset", () => {
   const temporaryRoot = mkdtempSync(join(tmpdir(), "vllnt-ts-package-"));
   try {
-    const pack = JSON.parse(
-      run("pnpm", ["pack", "--json", "--pack-destination", temporaryRoot]),
-    );
-    expect(
-      pack.files.map((/** @type {{ path: string }} */ { path }) => path).sort(),
-    ).toEqual([...expectedPackageFiles].sort());
-
-    const consumer = join(temporaryRoot, "consumer");
-    mkdirSync(consumer);
-    writeFileSync(
-      join(consumer, "package.json"),
-      JSON.stringify({
-        devDependencies: {
-          "@vllnt/typescript": `file:${pack.filename}`,
-        },
-        packageManager: packageJson.packageManager,
-        private: true,
-      }),
-    );
-    run(
-      "pnpm",
-      ["install", "--ignore-scripts", "--config.auto-install-peers=false"],
-      { cwd: consumer },
-    );
+    const { consumer, files } = installPackedConsumer(temporaryRoot);
+    expect(files.sort()).toEqual([...expectedPackageFiles].sort());
 
     for (const preset of presets) {
       const project = join(consumer, preset);
