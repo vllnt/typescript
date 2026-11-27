@@ -10,6 +10,10 @@
 # extra regexes in .package-contents-allowlist (matched against the packed
 # path). Test files, .env files, and paths matching the denylist still fail.
 #
+# Required: every exact path listed in .package-contents-required (one per
+# line, # comments allowed) must be packed, or the check fails. Without that
+# file nothing is required.
+#
 # Usage: check-package-contents.sh [package-dir]
 #   $PACKAGE_CONTENTS_DIR  default package directory when no argument is given
 #
@@ -40,7 +44,8 @@ list_packed() {
     const raw = fs.readFileSync(process.env.PKG_PACK_JSON, "utf8").trim();
     if (!raw) process.exit(2);
     let data = JSON.parse(raw);
-    if (!Array.isArray(data)) data = [data];
+    // npm <=11 prints an array; npm 12 prints an object keyed by package name.
+    if (!Array.isArray(data)) data = data.files ? [data] : Object.values(data);
     const files = (data[0] && data[0].files) || [];
     for (const f of files) {
       let p = typeof f === "string" ? f : f.path;
@@ -148,8 +153,21 @@ for path in "${packed[@]}"; do
   fi
 done
 
-if (( denied > 0 || violations > 0 )); then
-  echo "FAIL package contents: $denied denied path(s), $violations outside allowlist"
+missing=0
+required_files=("$PKG_DIR/.package-contents-required")
+[[ "$PKG_DIR" == "$ROOT" ]] || required_files+=("$ROOT/.package-contents-required")
+for f in "${required_files[@]}"; do
+  [[ -f "$f" ]] || continue
+  while IFS= read -r req; do
+    if ! printf '%s\n' "${packed[@]}" | grep -qxF -- "$req"; then
+      printf '  MISSING %s\n' "$req"
+      missing=$((missing + 1))
+    fi
+  done < <(tr -d '\r' < "$f" | sed -E '/^[[:space:]]*(#|$)/d')
+done
+
+if (( denied > 0 || violations > 0 || missing > 0 )); then
+  echo "FAIL package contents: $denied denied path(s), $violations outside allowlist, $missing required path(s) missing"
   exit 1
 fi
 
