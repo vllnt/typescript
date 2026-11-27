@@ -4,10 +4,15 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+## [3.0.1] - 2026-11-27
+
+Presets are unchanged from 3.0.0. This release changes package metadata and the shipped documentation.
+
 ### Added
 
 - `README.md` and `llms.txt` have a "For coding agents" note: the documentation ships in `node_modules/@vllnt/typescript/` and matches the installed version. `llms.txt` links to the shipped `README.md` and `CHANGELOG.md` with relative paths and adds related-package and ecosystem links; the README adds a related-packages section and documents each preset's notable compiler options. Presets are unchanged.
 - `scripts/check-package-contents.sh` fails when a path listed in `.package-contents-required` is missing from the tarball, and `pnpm check` runs it with its tests.
+- A `scripts/test-check-package-contents.sh` case proves that a package below the repository root is checked against its own `.package-contents-required` only.
 
 ### Changed
 
@@ -18,6 +23,7 @@ All notable changes to this project are documented in this file. The format foll
 
 ### Fixed
 
+- `pnpm check` type-checks the repository scripts and tests (`pnpm typecheck`, TypeScript 6 and 7). The root `tsconfig.json` enabled `checkJs`, but nothing ran it, and it had 23 errors under TypeScript 7 and 21 under TypeScript 6. The root `tsconfig.json` sets `declaration: false`, because it only type-checks.
 - `scripts/check-package-contents.sh` reads the object-shaped `npm pack --json` output of npm 12. The canary job had failed with "npm pack reported no files" since the check was added.
 
 ## [3.0.0] - 2026-11-16

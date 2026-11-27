@@ -206,7 +206,7 @@ The checks type-check the repository scripts and tests and compile every preset 
 - [Contributing](https://github.com/vllnt/typescript/blob/main/CONTRIBUTING.md) · [Issues](https://github.com/vllnt/typescript/issues)
 - [Security policy and private reporting](https://github.com/vllnt/typescript/blob/main/SECURITY.md)
 
-npm `latest` is stable `3.0.0` at this audit. `@canary` selects moving prereleases;
+npm `latest` is stable `3.0.1` at this audit. `@canary` selects moving prereleases;
 pin and test them before adoption. The compatibility matrix above describes
 this version's tested integrations, not a requirement to use every framework.
 
