@@ -1,9 +1,13 @@
 # @vllnt/typescript
 
-Shared TypeScript configurations for Node.js, libraries, React, and Next.js. Version 2 targets the native TypeScript 7 compiler while retaining a tested TypeScript 6 migration path.
+Shared TypeScript configurations for Node.js, libraries, React, and Next.js. Version 3 targets the native TypeScript 7 compiler while retaining a tested TypeScript 6 migration path.
 
 Use these independently in any project; no vllnt monorepo or runtime dependency
 is required. Extend a preset, then supply project-specific paths and ambient types.
+
+## For coding agents
+
+The documentation ships inside the package: `node_modules/@vllnt/typescript/` contains `README.md`, `llms.txt` and `CHANGELOG.md` next to the preset files, and they match the installed version. Read them before writing a `tsconfig.json`.
 
 ## Install
 
@@ -29,13 +33,15 @@ This is the [official side-by-side migration arrangement](https://devblogs.micro
 
 ## Presets
 
-| Preset              | Use case                             | Module resolution | Target    | Emit                                  |
-| ------------------- | ------------------------------------ | ----------------- | --------- | ------------------------------------- |
-| `base.json`         | Foundation extended by other presets | Inherited         | Inherited | Inherited                             |
-| `nodejs.json`       | Node.js applications                 | NodeNext          | ES2024    | JavaScript, declarations, source maps |
-| `node-library.json` | Publishable npm packages             | NodeNext          | ES2024    | JavaScript, declarations and maps     |
-| `react.json`        | Bundled React applications           | Bundler           | ES2022    | JavaScript, declarations, source maps |
-| `nextjs.json`       | Next.js applications                 | Bundler           | ES2022    | None                                  |
+Extend one preset per project. Every preset extends `base.json`, so it inherits the [base defaults](#base-defaults).
+
+| Preset              | Extend it for                                                     | Module / resolution | Target / lib                       | Emit                                  | Other options                                                  |
+| ------------------- | ----------------------------------------------------------------- | ------------------- | ---------------------------------- | ------------------------------------- | -------------------------------------------------------------- |
+| `base.json`         | Other environments; you set `module`, `target` and `lib` yourself | Not set             | Not set                            | Not set                               | Strictness and interop defaults only                           |
+| `nodejs.json`       | Node.js applications                                              | NodeNext / NodeNext | ES2024 / ES2024                    | JavaScript, declarations, source maps | None                                                           |
+| `node-library.json` | Publishable npm packages                                          | NodeNext / NodeNext | ES2024 / ES2024                    | JavaScript, declarations, both maps   | `declarationMap`                                               |
+| `react.json`        | Bundled React applications (for example Vite)                     | ESNext / Bundler    | ES2022 / DOM, DOM.Iterable, ES2024 | JavaScript, declarations, source maps | `jsx: "react-jsx"`                                             |
+| `nextjs.json`       | Next.js applications                                              | ESNext / Bundler    | ES2022 / DOM, DOM.Iterable, ES2024 | None (`noEmit`)                       | `jsx: "preserve"`, `allowJs`, `incremental`, the `next` plugin |
 
 Emitting presets do not enable `incremental`. Unless you opt in, a clean build emits every output even when a `.tsbuildinfo` file is left over. If you set `incremental: true`, delete the `.tsbuildinfo` file together with the output directory before a clean build. `nextjs.json` keeps `incremental` because it does not emit; if you override `noEmit`, also set `incremental: false`.
 
@@ -80,6 +86,8 @@ Emitting presets do not enable `incremental`. Unless you opt in, a clean build e
   "include": ["src"]
 }
 ```
+
+When a bundler such as Vite emits the JavaScript, replace `outDir` with `"noEmit": true` so `tsc` only type-checks.
 
 ### Next.js
 
@@ -148,7 +156,7 @@ The same applies to call arguments and to props you pass to libraries: `use({ na
 
 `exactOptionalPropertyTypes` also changes declaration emit. When TypeScript infers a type that has an optional property, it now prints `count?: number` where it used to print `count?: number | undefined`. Types you annotate yourself are copied as written. If you publish a library, compare the `.d.ts` files before and after upgrading.
 
-To adopt the flags one at a time, set the ones you are not ready for to `false` in your own `compilerOptions` (after `extends`) and remove the override as you fix each one. The fixtures in `tests/fixtures/flags` show a failing and an accepted form of each pattern.
+To adopt the flags one at a time, set the ones you are not ready for to `false` in your own `compilerOptions` (after `extends`) and remove the override as you fix each one. The [fixtures in `tests/fixtures/flags`](https://github.com/vllnt/typescript/tree/main/tests/fixtures/flags) show a failing and an accepted form of each pattern.
 
 ## Migrating from version 1
 
@@ -165,14 +173,15 @@ TypeScript 7 also removes ES5 targeting, legacy module formats and resolution, `
 
 ## Compatibility
 
-| Surface                | Supported version                                       |
-| ---------------------- | ------------------------------------------------------- |
-| Node.js consumers      | `>=22`                                                  |
-| TypeScript             | `>=6.0.2 <8`                                            |
-| Tested compilers       | TypeScript 6 compatibility package and TypeScript 7.0.2 |
-| Next.js integration    | 16.4.5                                                  |
-| React integration      | 19.3.1                                                  |
-| Repository development | Node.js 22.13+, pnpm 11.28.8                            |
+| Surface                | Supported version                                  |
+| ---------------------- | -------------------------------------------------- |
+| Node.js consumers      | `>=22`                                             |
+| TypeScript             | `>=6.0.2 <8`                                       |
+| Tested compilers       | TypeScript 6.0.2 (compatibility package) and 7.0.2 |
+| Next.js integration    | 16.4.6                                             |
+| React integration      | 19.3.1                                             |
+| Vite integration       | 8.3.8                                              |
+| Repository development | Node.js 22.13+, pnpm 11.28.8                       |
 
 ## Development
 
@@ -194,18 +203,24 @@ The checks compile every preset with TypeScript 6 and 7, prove that each inherit
 ## Documentation and support
 
 - [LLM index](llms.txt) · [Changelog](CHANGELOG.md)
-- [Contributing](CONTRIBUTING.md) · [Issues](https://github.com/vllnt/typescript/issues)
-- [Security policy and private reporting](SECURITY.md)
+- [Contributing](https://github.com/vllnt/typescript/blob/main/CONTRIBUTING.md) · [Issues](https://github.com/vllnt/typescript/issues)
+- [Security policy and private reporting](https://github.com/vllnt/typescript/blob/main/SECURITY.md)
 
 npm `latest` is stable `3.0.0` at this audit. `@canary` selects moving prereleases;
 pin and test them before adoption. The compatibility matrix above describes
 this version's tested integrations, not a requirement to use every framework.
 
+## Related packages
+
+- [`@vllnt/eslint-config`](https://oss.vllnt.com/packages/eslint-config): strict ESLint presets for TypeScript projects. Use it for lint rules and `@vllnt/typescript` for compiler options; they are installed and configured separately.
+
 ## Author
 
 Built by [bntvllnt](https://github.com/bntvllnt) · [bntvllnt.com](https://bntvllnt.com).
-Part of [@vllnt](https://github.com/vllnt). [Sponsor the work](https://github.com/sponsors/bntvllnt).
+[Sponsor the work](https://github.com/sponsors/bntvllnt).
 
 ## License
 
 [MIT](LICENSE)
+
+Part of vllnt oss: <https://oss.vllnt.com>

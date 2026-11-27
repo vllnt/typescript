@@ -11,7 +11,7 @@
     "type": "github",
     "url": "https://github.com/sponsors/bntvllnt"
   },
-  "homepage": "https://github.com/vllnt/typescript#readme",
+  "homepage": "https://oss.vllnt.com/packages/typescript",
   "bugs": {
     "url": "https://github.com/vllnt/typescript/issues"
   },
@@ -23,7 +23,10 @@
     "typescript",
     "tsconfig",
     "config",
-    "shared-config"
+    "shared-config",
+    "nodejs",
+    "react",
+    "nextjs"
   ],
   "packageManager": "pnpm@11.28.8",
   "engines": {
@@ -35,6 +38,7 @@
     "nodejs.json",
     "node-library.json",
     "react.json",
+    "README.md",
     "CHANGELOG.md",
     "llms.txt"
   ],
@@ -53,8 +57,9 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:integration": "pnpm --dir tests/integration/react build && pnpm --dir tests/integration/nextjs build",
-    "check": "pnpm format:check && pnpm lint && pnpm test:coverage && pnpm test:integration",
-    "check:agents": "node -e \"const f=require('node:fs');if(!f.existsSync('AGENTS.md')||f.existsSync('CLAUDE.md')||f.existsSync('.claude'))process.exit(1)\""
+    "check": "pnpm format:check && pnpm lint && pnpm test:coverage && pnpm test:integration && pnpm test:package",
+    "check:agents": "node -e \"const f=require('node:fs');if(!f.existsSync('AGENTS.md')||f.existsSync('CLAUDE.md')||f.existsSync('.claude'))process.exit(1)\"",
+    "test:package": "bash scripts/test-check-package-contents.sh && bash scripts/check-package-contents.sh"
   },
   "peerDependencies": {
     "typescript": ">=6.0.2 <8"

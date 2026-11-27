@@ -1,0 +1,11 @@
+# Paths that must be in the npm tarball (checked by scripts/check-package-contents.sh).
+package.json
+README.md
+LICENSE
+CHANGELOG.md
+llms.txt
+base.json
+nextjs.json
+nodejs.json
+node-library.json
+react.json

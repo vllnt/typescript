@@ -4,10 +4,20 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+### Added
+
+- `README.md` and `llms.txt` have a "For coding agents" note: the documentation ships in `node_modules/@vllnt/typescript/` and matches the installed version. `llms.txt` links to the shipped `README.md` and `CHANGELOG.md` with relative paths and adds related-package and ecosystem links; the README adds a related-packages section and documents each preset's notable compiler options. Presets are unchanged.
+- `scripts/check-package-contents.sh` fails when a path listed in `.package-contents-required` is missing from the tarball, and `pnpm check` runs it with its tests.
+
 ### Changed
 
+- `package.json` `homepage` is https://oss.vllnt.com/packages/typescript, with more accurate `keywords`. Publish path filters include `README.md`, `llms.txt` and `CHANGELOG.md`, so a documentation-only change publishes a canary.
 - Upgraded the development dependencies `vitest` and `@vitest/coverage-v8` to 5.1.0 and `prettier` to 3.10.1, and added a scoped override to a patched `minimatch` 11 for GHSA-g3hv-75wg-m249 (moderate, reached only through the development lint toolchain). `prettier` 3.10.1 is installed through a version-scoped exception to the 7-day release-age rule in `pnpm-workspace.yaml`, removable after 2026-11-19. Removed the unused root development dependency `@types/react-dom` (the integration fixtures declare their own). Presets and the packed file list are unchanged.
 - Upgraded the development dependency `@vllnt/eslint-config` to 2.1.0 and the integration fixtures to `next` 16.4.6 and `vite` 8.3.8. No change to the presets or the packed file list.
+
+### Fixed
+
+- `scripts/check-package-contents.sh` reads the object-shaped `npm pack --json` output of npm 12. The canary job had failed with "npm pack reported no files" since the check was added.
 
 ## [3.0.0] - 2026-11-16
 

@@ -103,6 +103,44 @@ printf 'Contact admin@example.com\n' > "$REPO/README.md"
 commit_tree
 run "reserved example.com email in packed README passes" 0
 
+# Required paths must be packed
+printf 'Hello.\n' > "$REPO/README.md"
+printf '%s\n' '# required' 'README.md' 'dist/index.js' > "$REPO/.package-contents-required"
+commit_tree
+run "required paths present passes" 0
+
+write_pkg '{"name":"fixture-pack","version":"1.0.0","files":["src"]}'
+mkdir -p "$REPO/src"
+printf 'export {}\n' > "$REPO/src/index.js"
+commit_tree
+run "required path missing from files fails" 1
+grep -q 'MISSING dist/index.js' <<< "$LAST_OUTPUT" || { echo "FAIL missing required path not reported" >&2; failures=$((failures + 1)); }
+refute "present required path reported missing" "MISSING README.md"
+rm -rf "$REPO/src"
+write_pkg '{"name":"fixture-pack","version":"1.0.0","files":["dist"]}'
+commit_tree
+
+# npm 12 prints pack --json as an object keyed by package name
+SHIM="$(mktemp -d)"
+trap 'rm -rf "$REPO" "$SHIM"' EXIT
+REAL_NPM="$(command -v npm)"
+cat > "$SHIM/npm" <<SH
+#!/usr/bin/env bash
+if [[ " \$* " == *" --dry-run "* && " \$* " == *" --json "* ]]; then
+  "$REAL_NPM" "\$@" | node -e 'let s="";process.stdin.on("data",c=>s+=c).on("end",()=>{const o={};for(const p of JSON.parse(s))o[p.name]=p;console.log(JSON.stringify(o))})'
+else
+  exec "$REAL_NPM" "\$@"
+fi
+SH
+chmod +x "$SHIM/npm"
+LAST_OUTPUT="$(cd "$REPO" && PATH="$SHIM:$PATH" bash scripts/check-package-contents.sh 2>&1)"
+if [[ $? -eq 0 ]] && grep -q 'OK    package contents: 4 file' <<< "$LAST_OUTPUT"; then
+  echo "OK    npm 12 object-shaped pack output passes"
+else
+  printf 'FAIL npm 12 object-shaped pack output\n%s\n' "$LAST_OUTPUT" >&2
+  failures=$((failures + 1))
+fi
+
 if [[ "$failures" -ne 0 ]]; then
   echo "FAILED $failures test-check-package-contents case(s)" >&2
   exit 1
