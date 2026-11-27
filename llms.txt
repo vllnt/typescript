@@ -9,7 +9,7 @@
 - License: MIT
 
 Install independently in any project; no vllnt monorepo is required. npm latest
-is stable 3.0.0 at this audit; canary is a moving prerelease channel. Pin and test
+is stable 3.0.1 at this audit; canary is a moving prerelease channel. Pin and test
 prereleases. See [Contributing](https://github.com/vllnt/typescript/blob/main/CONTRIBUTING.md) and the [Security policy](https://github.com/vllnt/typescript/blob/main/SECURITY.md).
 
 ## For coding agents

@@ -173,15 +173,15 @@ TypeScript 7 also removes ES5 targeting, legacy module formats and resolution, `
 
 ## Compatibility
 
-| Surface                | Supported version                                  |
-| ---------------------- | -------------------------------------------------- |
-| Node.js consumers      | `>=22`                                             |
-| TypeScript             | `>=6.0.2 <8`                                       |
-| Tested compilers       | TypeScript 6.0.2 (compatibility package) and 7.0.2 |
-| Next.js integration    | 16.4.6                                             |
-| React integration      | 19.3.1                                             |
-| Vite integration       | 8.3.8                                              |
-| Repository development | Node.js 22.13+, pnpm 12.22.0                       |
+| Surface                | Supported version                                                                |
+| ---------------------- | -------------------------------------------------------------------------------- |
+| Node.js consumers      | `>=22`                                                                           |
+| TypeScript             | `>=6.0.2 <8`                                                                     |
+| Tested compilers       | TypeScript 7.0.2, and `@typescript/typescript6` 6.0.2 (its `tsc6` reports 6.0.3) |
+| Next.js integration    | 16.4.6                                                                           |
+| React integration      | 19.3.1                                                                           |
+| Vite integration       | 8.3.8                                                                            |
+| Repository development | Node.js 22.13+, pnpm 12.22.0                                                     |
 
 ## Development
 
@@ -191,7 +191,7 @@ pnpm check
 pnpm pack --dry-run
 ```
 
-The checks compile every preset with TypeScript 6 and 7, prove that each inherited strictness flag is active, verify declaration emit, install and compile the packed package, enforce full test-helper coverage, and build real React/Vite and Next.js fixtures.
+The checks type-check the repository scripts and tests and compile every preset with TypeScript 6 and 7, prove that each inherited strictness flag is active, verify declaration emit, install and compile the packed package, enforce full test-helper coverage, and build real React/Vite and Next.js fixtures.
 
 ## Versioning
 
@@ -206,7 +206,7 @@ The checks compile every preset with TypeScript 6 and 7, prove that each inherit
 - [Contributing](https://github.com/vllnt/typescript/blob/main/CONTRIBUTING.md) · [Issues](https://github.com/vllnt/typescript/issues)
 - [Security policy and private reporting](https://github.com/vllnt/typescript/blob/main/SECURITY.md)
 
-npm `latest` is stable `3.0.0` at this audit. `@canary` selects moving prereleases;
+npm `latest` is stable `3.0.1` at this audit. `@canary` selects moving prereleases;
 pin and test them before adoption. The compatibility matrix above describes
 this version's tested integrations, not a requirement to use every framework.
 

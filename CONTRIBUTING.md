@@ -15,7 +15,7 @@ pnpm check
 pnpm pack --dry-run
 ```
 
-`pnpm check` runs formatting, linting, TypeScript 6/7 compiler fixtures, packed-package validation, coverage, and real React/Vite and Next.js builds.
+`pnpm check` runs formatting, linting, TypeScript 6 and 7 type-checking of the repository scripts and tests, TypeScript 6/7 compiler fixtures, packed-package validation, coverage, and real React/Vite and Next.js builds.
 
 ## Pull requests
 
@@ -33,6 +33,8 @@ publishing and provenance; nothing is published from a local machine.
 - Canary (`@canary`): every push to `main` that touches the package publishes one; it can
   also be run manually on `main`.
 - Stable (`@latest`): merge a PR that sets `package.json` `version` and adds a matching
-  `## [X.Y.Z]` entry to `CHANGELOG.md`, then push the tag `vX.Y.Z` on that `main` commit.
+  `## [X.Y.Z]` entry to `CHANGELOG.md`, then push the tag `vX.Y.Z` on that `main` commit
+  (the squash-merge commit, not the PR head). The release job runs in the `npm`
+  environment and waits for a required reviewer to approve the deployment.
 
 Do not bump versions, create tags, or publish unless a maintainer explicitly requests it.
