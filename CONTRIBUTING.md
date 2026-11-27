@@ -15,7 +15,7 @@ pnpm check
 pnpm pack --dry-run
 ```
 
-`pnpm check` runs formatting, linting, TypeScript 6/7 compiler fixtures, packed-package validation, coverage, and real React/Vite and Next.js builds.
+`pnpm check` runs formatting, linting, TypeScript 6 and 7 type-checking of the repository scripts and tests, TypeScript 6/7 compiler fixtures, packed-package validation, coverage, and real React/Vite and Next.js builds.
 
 ## Pull requests
 

@@ -23,6 +23,8 @@ import {
   runCompiler,
 } from "../scripts/test-utils.mjs";
 
+/** @typedef {import("../scripts/test-utils.mjs").Compiler} Compiler */
+
 const packageJson = loadJson(join(root, "package.json"));
 // Presets set noEmit directly rather than inheriting it, so the raw file is enough.
 const emittingPresets = presets.filter(
@@ -69,6 +71,7 @@ describe("public presets", () => {
   });
 
   test("preserve the documented effective compiler options", () => {
+    /** @type {Record<string, Record<string, unknown>>} */
     const expected = {
       base: { noUncheckedIndexedAccess: true, strict: true, types: [] },
       nextjs: { jsx: "preserve", moduleResolution: "bundler", noEmit: true },
@@ -256,9 +259,9 @@ test("the package tarball has an exact public surface and resolves every preset"
     const pack = JSON.parse(
       run("pnpm", ["pack", "--json", "--pack-destination", temporaryRoot]),
     );
-    expect(pack.files.map(({ path }) => path).sort()).toEqual(
-      [...expectedPackageFiles].sort(),
-    );
+    expect(
+      pack.files.map((/** @type {{ path: string }} */ { path }) => path).sort(),
+    ).toEqual([...expectedPackageFiles].sort());
 
     const consumer = join(temporaryRoot, "consumer");
     mkdirSync(consumer);
@@ -306,12 +309,17 @@ test("command failures retain actionable diagnostics", () => {
   expect(() => run("vllnt-command-that-does-not-exist", [])).toThrow();
 });
 
+/** @param {string} output */
 function loadJsonFromOutput(output) {
   return JSON.parse(output);
 }
 
 // Emits the compliant fixture and the declaration fixture with the node-library
 // preset and returns a map of "<path>" to content for every .js and .d.ts file.
+/**
+ * @param {Compiler} compiler
+ * @param {string[]} [extraArguments]
+ */
 function emitFlagFixtures(compiler, extraArguments = []) {
   const project = mkdtempSync(join(tmpdir(), "vllnt-ts-flags-emit-"));
   try {
@@ -330,7 +338,7 @@ function emitFlagFixtures(compiler, extraArguments = []) {
     );
     runCompiler(compiler, ["--project", tsconfig, ...extraArguments]);
     return new Map(
-      readdirSync(outputDirectory, { recursive: true })
+      readdirSync(outputDirectory, { encoding: "utf8", recursive: true })
         .filter((file) => /\.(js|d\.ts)$/.test(file))
         .map((file) => [
           file.replaceAll("\\", "/"),
@@ -345,6 +353,11 @@ function emitFlagFixtures(compiler, extraArguments = []) {
 // Type-checks tests/fixtures/flags under a preset and returns the sorted
 // "<file> <code>" of every diagnostic. A failure with no diagnostic (a bad
 // config, a missing file) is rethrown so it cannot pass as "no errors".
+/**
+ * @param {Compiler} compiler
+ * @param {string} preset
+ * @param {string[]} [extraArguments]
+ */
 function typeCheckFlagFixtures(compiler, preset, extraArguments = []) {
   const project = mkdtempSync(join(tmpdir(), "vllnt-ts-flags-"));
   try {
@@ -367,6 +380,9 @@ function typeCheckFlagFixtures(compiler, preset, extraArguments = []) {
       ]);
       return [];
     } catch (error) {
+      if (!(error instanceof Error)) {
+        throw error;
+      }
       const diagnostics = [
         ...error.message.matchAll(/([^/\\]+)\(\d+,\d+\): error (TS\d+):/g),
       ].map(([, file, code]) => `${file} ${code}`);

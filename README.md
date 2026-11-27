@@ -191,7 +191,7 @@ pnpm check
 pnpm pack --dry-run
 ```
 
-The checks compile every preset with TypeScript 6 and 7, prove that each inherited strictness flag is active, verify declaration emit, install and compile the packed package, enforce full test-helper coverage, and build real React/Vite and Next.js fixtures.
+The checks type-check the repository scripts and tests and compile every preset with TypeScript 6 and 7, prove that each inherited strictness flag is active, verify declaration emit, install and compile the packed package, enforce full test-helper coverage, and build real React/Vite and Next.js fixtures.
 
 ## Versioning
 

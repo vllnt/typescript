@@ -57,9 +57,10 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:integration": "pnpm --dir tests/integration/react build && pnpm --dir tests/integration/nextjs build",
-    "check": "pnpm format:check && pnpm lint && pnpm test:coverage && pnpm test:integration && pnpm test:package",
+    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test:coverage && pnpm test:integration && pnpm test:package",
     "check:agents": "node -e \"const f=require('node:fs');if(!f.existsSync('AGENTS.md')||f.existsSync('CLAUDE.md')||f.existsSync('.claude'))process.exit(1)\"",
-    "test:package": "bash scripts/test-check-package-contents.sh && bash scripts/check-package-contents.sh"
+    "test:package": "bash scripts/test-check-package-contents.sh && bash scripts/check-package-contents.sh",
+    "typecheck": "tsc --project tsconfig.json && tsc6 --project tsconfig.json"
   },
   "peerDependencies": {
     "typescript": ">=6.0.2 <8"
