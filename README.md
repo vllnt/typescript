@@ -39,7 +39,7 @@ Extend one preset per project. Every preset extends `base.json`, so it inherits 
 | ------------------- | ----------------------------------------------------------------- | ------------------- | ---------------------------------- | ------------------------------------- | -------------------------------------------------------------- |
 | `base.json`         | Other environments; you set `module`, `target` and `lib` yourself | Not set             | Not set                            | Not set                               | Strictness and interop defaults only                           |
 | `nodejs.json`       | Node.js applications                                              | NodeNext / NodeNext | ES2024 / ES2024                    | JavaScript, declarations, source maps | None                                                           |
-| `node-library.json` | Publishable npm packages                                          | NodeNext / NodeNext | ES2024 / ES2024                    | JavaScript, declarations and maps     | `declarationMap`                                               |
+| `node-library.json` | Publishable npm packages                                          | NodeNext / NodeNext | ES2024 / ES2024                    | JavaScript, declarations, both maps   | `declarationMap`                                               |
 | `react.json`        | Bundled React applications (for example Vite)                     | ESNext / Bundler    | ES2022 / DOM, DOM.Iterable, ES2024 | JavaScript, declarations, source maps | `jsx: "react-jsx"`                                             |
 | `nextjs.json`       | Next.js applications                                              | ESNext / Bundler    | ES2022 / DOM, DOM.Iterable, ES2024 | None (`noEmit`)                       | `jsx: "preserve"`, `allowJs`, `incremental`, the `next` plugin |
 
@@ -86,6 +86,8 @@ Emitting presets do not enable `incremental`. Unless you opt in, a clean build e
   "include": ["src"]
 }
 ```
+
+When a bundler such as Vite emits the JavaScript, replace `outDir` with `"noEmit": true` so `tsc` only type-checks.
 
 ### Next.js
 
@@ -154,7 +156,7 @@ The same applies to call arguments and to props you pass to libraries: `use({ na
 
 `exactOptionalPropertyTypes` also changes declaration emit. When TypeScript infers a type that has an optional property, it now prints `count?: number` where it used to print `count?: number | undefined`. Types you annotate yourself are copied as written. If you publish a library, compare the `.d.ts` files before and after upgrading.
 
-To adopt the flags one at a time, set the ones you are not ready for to `false` in your own `compilerOptions` (after `extends`) and remove the override as you fix each one. The fixtures in `tests/fixtures/flags` show a failing and an accepted form of each pattern.
+To adopt the flags one at a time, set the ones you are not ready for to `false` in your own `compilerOptions` (after `extends`) and remove the override as you fix each one. The [fixtures in `tests/fixtures/flags`](https://github.com/vllnt/typescript/tree/main/tests/fixtures/flags) show a failing and an accepted form of each pattern.
 
 ## Migrating from version 1
 
@@ -171,14 +173,15 @@ TypeScript 7 also removes ES5 targeting, legacy module formats and resolution, `
 
 ## Compatibility
 
-| Surface                | Supported version                                       |
-| ---------------------- | ------------------------------------------------------- |
-| Node.js consumers      | `>=22`                                                  |
-| TypeScript             | `>=6.0.2 <8`                                            |
-| Tested compilers       | TypeScript 6 compatibility package and TypeScript 7.0.2 |
-| Next.js integration    | 16.4.6                                                  |
-| React integration      | 19.3.1                                                  |
-| Repository development | Node.js 22.13+, pnpm 11.28.8                            |
+| Surface                | Supported version                                  |
+| ---------------------- | -------------------------------------------------- |
+| Node.js consumers      | `>=22`                                             |
+| TypeScript             | `>=6.0.2 <8`                                       |
+| Tested compilers       | TypeScript 6.0.2 (compatibility package) and 7.0.2 |
+| Next.js integration    | 16.4.6                                             |
+| React integration      | 19.3.1                                             |
+| Vite integration       | 8.3.8                                              |
+| Repository development | Node.js 22.13+, pnpm 11.28.8                       |
 
 ## Development
 
@@ -200,8 +203,8 @@ The checks compile every preset with TypeScript 6 and 7, prove that each inherit
 ## Documentation and support
 
 - [LLM index](llms.txt) · [Changelog](CHANGELOG.md)
-- [Contributing](CONTRIBUTING.md) · [Issues](https://github.com/vllnt/typescript/issues)
-- [Security policy and private reporting](SECURITY.md)
+- [Contributing](https://github.com/vllnt/typescript/blob/main/CONTRIBUTING.md) · [Issues](https://github.com/vllnt/typescript/issues)
+- [Security policy and private reporting](https://github.com/vllnt/typescript/blob/main/SECURITY.md)
 
 npm `latest` is stable `3.0.0` at this audit. `@canary` selects moving prereleases;
 pin and test them before adoption. The compatibility matrix above describes

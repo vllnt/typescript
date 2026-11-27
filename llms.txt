@@ -29,8 +29,8 @@ Extend one preset per project; every preset extends `base.json`.
 
 - `@vllnt/typescript/base.json`: strict shared defaults and explicit ambient types; sets no `module`, `target` or `lib`
 - `@vllnt/typescript/nodejs.json`: Node.js applications; NodeNext, ES2024, emits declarations and source maps
-- `@vllnt/typescript/node-library.json`: publishable npm packages; as `nodejs.json` plus `declarationMap`
-- `@vllnt/typescript/react.json`: bundled React applications; ESNext with Bundler resolution, ES2022, DOM libs, `jsx: "react-jsx"`, emits declarations and source maps
+- `@vllnt/typescript/node-library.json`: publishable npm packages; as `nodejs.json` plus `declarationMap` (declaration maps)
+- `@vllnt/typescript/react.json`: bundled React applications; ESNext with Bundler resolution, ES2022, DOM libs, `jsx: "react-jsx"`, emits declarations and source maps; set `noEmit: true` when a bundler such as Vite emits
 - `@vllnt/typescript/nextjs.json`: Next.js applications; ESNext with Bundler resolution, ES2022, DOM libs, `jsx: "preserve"`, `noEmit`, `incremental`, `allowJs`, the `next` plugin
 
 Consumers should list required ambient packages in `types` and set `rootDir` in emitting projects.
