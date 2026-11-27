@@ -10,7 +10,7 @@ All notable changes to this project are documented in this file. The format foll
 
 ### Changed
 
-- The README follows the shared @vllnt layout for coding agents: When to use, Install, Quick start, API (each preset's own `compilerOptions`), Common tasks, Errors and fixes, Limits and gotchas, Compatibility. It ends with links to the package page, vllnt open source, vllnt.com and the author. `llms.txt` rewrites the summary, adds when-to-use and links to the API and errors tables, and expands the Ecosystem links.
+- The README follows the shared @vllnt layout for coding agents: When to use, Install, Quick start, API (each preset's own `compilerOptions`), Common tasks, Errors and fixes, Limits and gotchas, Compatibility. It ends with a Links section (package docs and release feed, package index and search, source and issues, Discord and X, company and author, sponsor), which replaces the Author section, and the footer. `llms.txt` rewrites the summary, adds when-to-use and links to the API and errors tables, and ends with a six-link Ecosystem block (package page, release feed, all @vllnt packages, search, vllnt, author).
 - `package.json` `description` and `keywords` name what the package does and the stack. Presets are unchanged.
 
 ### Fixed

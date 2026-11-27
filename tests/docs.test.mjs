@@ -66,6 +66,7 @@ const requiredSections = [
   "Security",
   "Related packages",
   "Contributing",
+  "Links",
   "License",
 ];
 const footer = [
@@ -77,9 +78,20 @@ const ecosystem = [
   "## Ecosystem",
   "",
   `- [Package page](https://oss.vllnt.com/packages/${shortName})`,
+  `- [Release feed](https://oss.vllnt.com/packages/${shortName}/rss.xml)`,
   "- [All @vllnt packages](https://oss.vllnt.com/llms.txt)",
+  "- [Search vllnt packages and docs](https://index.vllnt.com)",
   "- [vllnt](https://vllnt.com/llms.txt)",
   "- [Author](https://bntvllnt.com)",
+].join("\n");
+const repository = `https://github.com/vllnt/${shortName}`;
+const links = [
+  `- Docs and changelog: [oss.vllnt.com/packages/${shortName}](https://oss.vllnt.com/packages/${shortName}) · [release feed](https://oss.vllnt.com/packages/${shortName}/rss.xml)`,
+  "- All @vllnt packages: [oss.vllnt.com](https://oss.vllnt.com) · [search packages and docs on index.vllnt.com](https://index.vllnt.com)",
+  `- Source and issues: [GitHub](${repository}) · [issues](${repository}/issues)`,
+  "- Questions and updates: [Discord](https://bntvllnt.com/discord) · [X @bntvllnt](https://x.com/bntvllnt)",
+  "- Company and author: [vllnt.com](https://vllnt.com) · [bntvllnt.com](https://bntvllnt.com) · [GitHub @bntvllnt](https://github.com/bntvllnt) · [LinkedIn](https://linkedin.com/in/bntvllnt)",
+  "- Sponsor: [GitHub Sponsors](https://github.com/sponsors/bntvllnt)",
 ].join("\n");
 
 /** @param {string} ts6 @param {string} [ts7] */
@@ -359,6 +371,14 @@ describe("README layout", () => {
     for (const block of [install, ...quickStart]) {
       expect(block?.endLine).toBeLessThanOrEqual(40);
     }
+  });
+
+  test("has the exact Links section", () => {
+    expect(
+      sectionText(readme, "Links")
+        .replace(/^## Links\n/, "")
+        .trim(),
+    ).toBe(links);
   });
 
   test("ends with the exact ecosystem footer", () => {

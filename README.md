@@ -329,16 +329,20 @@ Report vulnerabilities privately as described in the [security policy](https://g
 
 ## Related packages
 
-- [`@vllnt/eslint-config`](https://oss.vllnt.com/packages/eslint-config): ESLint presets for TypeScript projects. It sets lint rules; `@vllnt/typescript` sets compiler options. They are installed and configured separately.
+- [`@vllnt/eslint-config`](https://oss.vllnt.com/packages/eslint-config): ESLint presets for TypeScript projects. It sets lint rules and `@vllnt/typescript` sets compiler options; each is installed and configured on its own. This repository uses both: `eslint.config.mjs` imports `@vllnt/eslint-config/nodejs` (a devDependency) and lints the scripts and tests.
 
 ## Contributing
 
 See [CONTRIBUTING.md](https://github.com/vllnt/typescript/blob/main/CONTRIBUTING.md) and the [issues](https://github.com/vllnt/typescript/issues).
 
-## Author
+## Links
 
-Built by [bntvllnt](https://github.com/bntvllnt) · [bntvllnt.com](https://bntvllnt.com).
-[Sponsor the work](https://github.com/sponsors/bntvllnt).
+- Docs and changelog: [oss.vllnt.com/packages/typescript](https://oss.vllnt.com/packages/typescript) · [release feed](https://oss.vllnt.com/packages/typescript/rss.xml)
+- All @vllnt packages: [oss.vllnt.com](https://oss.vllnt.com) · [search packages and docs on index.vllnt.com](https://index.vllnt.com)
+- Source and issues: [GitHub](https://github.com/vllnt/typescript) · [issues](https://github.com/vllnt/typescript/issues)
+- Questions and updates: [Discord](https://bntvllnt.com/discord) · [X @bntvllnt](https://x.com/bntvllnt)
+- Company and author: [vllnt.com](https://vllnt.com) · [bntvllnt.com](https://bntvllnt.com) · [GitHub @bntvllnt](https://github.com/bntvllnt) · [LinkedIn](https://linkedin.com/in/bntvllnt)
+- Sponsor: [GitHub Sponsors](https://github.com/sponsors/bntvllnt)
 
 ## License
 

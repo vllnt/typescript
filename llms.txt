@@ -64,11 +64,13 @@ Migrating from version 2 (the last four flags are new):
 
 ## Related packages
 
-- [@vllnt/eslint-config](https://oss.vllnt.com/packages/eslint-config): ESLint presets for TypeScript projects; lint rules, configured separately from these compiler presets.
+- [@vllnt/eslint-config](https://oss.vllnt.com/packages/eslint-config): ESLint presets for TypeScript projects. It sets lint rules and these presets set compiler options; each is installed and configured on its own. This repository uses both: `eslint.config.mjs` imports `@vllnt/eslint-config/nodejs` (a devDependency) and lints the scripts and tests.
 
 ## Ecosystem
 
 - [Package page](https://oss.vllnt.com/packages/typescript)
+- [Release feed](https://oss.vllnt.com/packages/typescript/rss.xml)
 - [All @vllnt packages](https://oss.vllnt.com/llms.txt)
+- [Search vllnt packages and docs](https://index.vllnt.com)
 - [vllnt](https://vllnt.com/llms.txt)
 - [Author](https://bntvllnt.com)
