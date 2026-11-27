@@ -12,7 +12,7 @@ Presets are unchanged from 3.0.0. This release changes package metadata and the 
 
 - `README.md` and `llms.txt` have a "For coding agents" note: the documentation ships in `node_modules/@vllnt/typescript/` and matches the installed version. `llms.txt` links to the shipped `README.md` and `CHANGELOG.md` with relative paths and adds related-package and ecosystem links; the README adds a related-packages section and documents each preset's notable compiler options. Presets are unchanged.
 - `scripts/check-package-contents.sh` checks the packed file list against an allowlist and the privacy denylist, and fails when a path listed in `.package-contents-required` is missing from the tarball. `pnpm check`, the canary job and the release job run it before publishing; it reads both the array-shaped and the npm 12 object-shaped `npm pack --json` output.
-- A Privacy Guard workflow checks commit author emails and tracked files against a privacy denylist on every pull request and push to `main`.
+- A Privacy Guard workflow runs on every push and pull request. It checks commit author, committer and trailer emails against an allowlist of GitHub noreply addresses, rejects private hostnames and internal IPs in commit metadata, scans tracked files against a privacy denylist, and runs a gitleaks secret scan.
 
 ### Changed
 
