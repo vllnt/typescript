@@ -173,15 +173,15 @@ TypeScript 7 also removes ES5 targeting, legacy module formats and resolution, `
 
 ## Compatibility
 
-| Surface                | Supported version                                  |
-| ---------------------- | -------------------------------------------------- |
-| Node.js consumers      | `>=22`                                             |
-| TypeScript             | `>=6.0.2 <8`                                       |
-| Tested compilers       | TypeScript 6.0.2 (compatibility package) and 7.0.2 |
-| Next.js integration    | 16.4.6                                             |
-| React integration      | 19.3.1                                             |
-| Vite integration       | 8.3.8                                              |
-| Repository development | Node.js 22.13+, pnpm 12.22.0                       |
+| Surface                | Supported version                                                                |
+| ---------------------- | -------------------------------------------------------------------------------- |
+| Node.js consumers      | `>=22`                                                                           |
+| TypeScript             | `>=6.0.2 <8`                                                                     |
+| Tested compilers       | TypeScript 7.0.2, and `@typescript/typescript6` 6.0.2 (its `tsc6` reports 6.0.3) |
+| Next.js integration    | 16.4.6                                                                           |
+| React integration      | 19.3.1                                                                           |
+| Vite integration       | 8.3.8                                                                            |
+| Repository development | Node.js 22.13+, pnpm 12.22.0                                                     |
 
 ## Development
 

@@ -41,7 +41,8 @@ commit_tree() {
 
 run() {
   local name="$1" expected="$2"
-  LAST_OUTPUT="$(cd "$REPO" && bash scripts/check-package-contents.sh 2>&1)"
+  shift 2
+  LAST_OUTPUT="$(cd "$REPO" && bash scripts/check-package-contents.sh "$@" 2>&1)"
   LAST_STATUS=$?
   if [[ "$LAST_STATUS" != "$expected" ]]; then
     printf 'FAIL %s: expected exit %s, got %s\n%s\n' "$name" "$expected" "$LAST_STATUS" "$LAST_OUTPUT" >&2
@@ -128,22 +129,11 @@ printf '%s\n' '{"name":"fixture-sub","version":"1.0.0","files":["lib"]}' > "$SUB
 printf 'export {}\n' > "$SUB/lib/index.js"
 printf '%s\n' 'lib/index.js' > "$SUB/.package-contents-required"
 commit_tree
-run_sub() {
-  local name="$1" expected="$2"
-  LAST_OUTPUT="$(cd "$REPO" && bash scripts/check-package-contents.sh packages/sub 2>&1)"
-  LAST_STATUS=$?
-  if [[ "$LAST_STATUS" != "$expected" ]]; then
-    printf 'FAIL %s: expected exit %s, got %s\n%s\n' "$name" "$expected" "$LAST_STATUS" "$LAST_OUTPUT" >&2
-    failures=$((failures + 1))
-    return
-  fi
-  printf 'OK    %s\n' "$name"
-}
-run_sub "nested package uses only its own required list" 0
+run "nested package uses only its own required list" 0 packages/sub
 refute "root required list applied to nested package" "MISSING dist/index.js"
 printf '%s\n' 'lib/index.js' 'lib/types.d.ts' > "$SUB/.package-contents-required"
 commit_tree
-run_sub "nested package missing its own required path fails" 1
+run "nested package missing its own required path fails" 1 packages/sub
 grep -q 'MISSING lib/types.d.ts' <<< "$LAST_OUTPUT" || { echo "FAIL nested missing required path not reported" >&2; failures=$((failures + 1)); }
 rm -rf "$REPO/packages"
 commit_tree

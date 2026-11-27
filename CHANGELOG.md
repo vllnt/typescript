@@ -11,8 +11,8 @@ Presets are unchanged from 3.0.0. This release changes package metadata and the 
 ### Added
 
 - `README.md` and `llms.txt` have a "For coding agents" note: the documentation ships in `node_modules/@vllnt/typescript/` and matches the installed version. `llms.txt` links to the shipped `README.md` and `CHANGELOG.md` with relative paths and adds related-package and ecosystem links; the README adds a related-packages section and documents each preset's notable compiler options. Presets are unchanged.
-- `scripts/check-package-contents.sh` fails when a path listed in `.package-contents-required` is missing from the tarball, and `pnpm check` runs it with its tests.
-- A `scripts/test-check-package-contents.sh` case proves that a package below the repository root is checked against its own `.package-contents-required` only.
+- `scripts/check-package-contents.sh` checks the packed file list against an allowlist and the privacy denylist, and fails when a path listed in `.package-contents-required` is missing from the tarball. `pnpm check`, the canary job and the release job run it before publishing; it reads both the array-shaped and the npm 12 object-shaped `npm pack --json` output.
+- A Privacy Guard workflow checks commit author emails and tracked files against a privacy denylist on every pull request and push to `main`.
 
 ### Changed
 
@@ -24,7 +24,6 @@ Presets are unchanged from 3.0.0. This release changes package metadata and the 
 ### Fixed
 
 - `pnpm check` type-checks the repository scripts and tests (`pnpm typecheck`, TypeScript 6 and 7). The root `tsconfig.json` enabled `checkJs`, but nothing ran it, and it had 23 errors under TypeScript 7 and 21 under TypeScript 6. The root `tsconfig.json` sets `declaration: false`, because it only type-checks.
-- `scripts/check-package-contents.sh` reads the object-shaped `npm pack --json` output of npm 12. The canary job had failed with "npm pack reported no files" since the check was added.
 
 ## [3.0.0] - 2026-11-16
 
@@ -91,7 +90,9 @@ The flags add diagnostics and leave JavaScript output unchanged, but inferred de
 - Added `base.json`, `nodejs.json`, `node-library.json`, `react.json`, and `nextjs.json` presets.
 - Documented Node.js 22+ and TypeScript 5+ expectations.
 
-[Unreleased]: https://github.com/vllnt/typescript/compare/v2.0.1...HEAD
+[Unreleased]: https://github.com/vllnt/typescript/compare/v3.0.1...HEAD
+[3.0.1]: https://github.com/vllnt/typescript/compare/v3.0.0...v3.0.1
+[3.0.0]: https://github.com/vllnt/typescript/compare/v2.0.1...v3.0.0
 [2.0.1]: https://github.com/vllnt/typescript/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/vllnt/typescript/compare/v1.0.0...v2.0.0
 [1.0.0]: https://github.com/vllnt/typescript/releases/tag/v1.0.0
