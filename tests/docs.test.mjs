@@ -43,6 +43,7 @@ import {
  * @property {Record<string, string>} files
  * @property {string} [extends] overrides `@vllnt/typescript/<preset>.json`
  * @property {boolean} [esm] adds `"type": "module"` to the project's package.json
+ * @property {string[]} [include] defaults to `["src"]`
  */
 
 const packageJson = loadJson(join(root, "package.json"));
@@ -125,17 +126,51 @@ const errorCases = [
     compilerOptions: { module: "ESNext", noEmit: true },
     files: { "src/index.ts": "export const value = 1;\n" },
   },
-  {
-    name: "baseUrl",
-    code: code("TS5101", "TS5102"),
+  ...[
+    { moduleResolution: "Bundler", expected: code("TS5109") },
+    { moduleResolution: "Bundler", expected: code("TS5095") },
+  ].map(({ expected, moduleResolution }) => ({
+    name: `moduleResolution overridden under NodeNext (${expected.ts7})`,
+    code: expected,
     preset: "nodejs",
-    compilerOptions: { baseUrl: ".", noEmit: true },
+    compilerOptions: { moduleResolution, noEmit: true },
     files: { "src/index.ts": "export const value = 1;\n" },
+  })),
+  {
+    name: "top-level await in CommonJS",
+    code: code("TS1309"),
+    preset: "nodejs",
+    compilerOptions: { noEmit: true },
+    files: { "src/index.ts": "await Promise.resolve();\nexport {};\n" },
+  },
+  {
+    name: "file outside rootDir",
+    code: code("TS6059"),
+    preset: "nodejs",
+    compilerOptions: { outDir: "dist", rootDir: "src" },
+    include: ["src", "tests"],
+    files: {
+      "src/index.ts": "export const value = 1;\n",
+      "tests/index.ts": "export const test = 1;\n",
+    },
   },
   ...[
+    { baseUrl: "." },
+    { downlevelIteration: true },
+    { outFile: "out.js" },
+  ].map((option) => ({
+    name: `removed option ${JSON.stringify(option)}`,
+    code: code("TS5101", "TS5102"),
+    preset: "base",
+    compilerOptions: { ...option, noEmit: true },
+    files: { "src/index.ts": "export const value = 1;\n" },
+  })),
+  ...[
     { moduleResolution: "node" },
+    { moduleResolution: "classic" },
     { target: "ES5" },
     { esModuleInterop: false },
+    { allowSyntheticDefaultImports: false },
   ].map((option) => ({
     name: `removed option ${JSON.stringify(option)}`,
     code: code("TS5107", "TS5108"),
@@ -163,6 +198,16 @@ const errorCases = [
     preset: "react",
     compilerOptions: { noEmit: true },
     files: { "src/index.ts": 'import "./styles.css";\n' },
+  },
+  {
+    name: "unchecked index access stored in a variable",
+    code: code("TS18048"),
+    preset: "base",
+    compilerOptions: { noEmit: true },
+    files: {
+      "src/index.ts":
+        "const values: number[] = [];\nconst first = values[0];\nexport const text = first.toFixed();\n",
+    },
   },
   {
     name: "unchecked index access",
@@ -231,6 +276,18 @@ const errorCases = [
   })),
 ];
 
+/** Exact output files of README examples that emit. @type {Record<string, string[]>} */
+const expectedOutputs = {
+  "Quick start": ["index.d.ts", "index.js", "index.js.map"],
+  "Common tasks / Build an npm library": [
+    "index.d.ts",
+    "index.d.ts.map",
+    "index.js",
+    "index.js.map",
+  ],
+};
+/** @type {{ code: string, output: string }[]} */
+const diagnosticOutputs = [];
 let consumer = "";
 let packedFiles = /** @type {string[]} */ ([]);
 let temporaryRoot = "";
@@ -293,7 +350,7 @@ describe("README layout", () => {
   test("puts the install command and the quick start within the first 40 lines", () => {
     const install = readmeBlocks.find(({ section }) => section === "Install");
     expect(install?.content).toMatch(
-      /^pnpm add --save-dev @vllnt\/typescript /,
+      /^pnpm add --save-dev @vllnt\/typescript@\^\d+ /,
     );
     const quickStart = readmeBlocks.filter(
       ({ section }) => section === "Quick start",
@@ -390,7 +447,7 @@ describe("shipped docs", () => {
     expect(llms.split("https://oss.vllnt.com/llms.txt").length - 1).toBe(1);
   });
 
-  test("no packed file mentions vllnt.ai", () => {
+  test("no packed file mentions the retired vllnt domain", () => {
     for (const file of packedFiles) {
       expect(readFileSync(join(root, file), "utf8"), file).not.toMatch(
         /vllnt\.ai/i,
@@ -420,8 +477,28 @@ describe.each(compilers)("README examples with $label", (compiler) => {
     expect(diagnosticLocations(compiler, tsconfig)).toEqual(expected);
     const { outDir } = loadJson(tsconfig).compilerOptions ?? {};
     if (outDir) {
-      expect(readdirSync(join(project, outDir)).length).toBeGreaterThan(0);
+      const outputs = readdirSync(join(project, outDir)).sort();
+      expect(outputs).toEqual(
+        expectedOutputs[group.name] ?? expect.arrayContaining(["index.js"]),
+      );
+      // NodeNext without "type": "module" writes CommonJS.
+      expect(readFileSync(join(project, outDir, "index.js"), "utf8")).toContain(
+        "exports.",
+      );
     }
+  });
+});
+
+test("the TypeScript 6 side-by-side example pins this major and both compilers", () => {
+  const block = readmeBlocks.find(
+    ({ caption, section }) =>
+      section === "Common tasks" && caption === "package.json",
+  );
+  const { devDependencies } = JSON.parse(block?.content ?? "{}");
+  expect(devDependencies).toEqual({
+    "@typescript/native": `npm:typescript@^${packageJson.devDependencies["@typescript/native"].split("@")[1]}`,
+    "@vllnt/typescript": `^${packageJson.version.split(".")[0]}.0.0`,
+    typescript: `npm:@typescript/typescript6@^${packageJson.devDependencies.typescript.split("@")[2]}`,
   });
 });
 
@@ -444,14 +521,36 @@ describe.each(compilers)("documented diagnostics with $label", (compiler) => {
         compilerOptions: errorCase.compilerOptions,
         extends:
           errorCase.extends ?? `@vllnt/typescript/${errorCase.preset}.json`,
-        include: ["src"],
+        include: errorCase.include ?? ["src"],
       }),
     );
     const expected =
       compiler.binary === "tsc6" ? errorCase.code.ts6 : errorCase.code.ts7;
-    expect(compilerOutput(compiler, join(project, "tsconfig.json"))).toContain(
-      `error ${expected}:`,
-    );
+    const output = compilerOutput(compiler, join(project, "tsconfig.json"));
+    expect(output).toContain(`error ${expected}:`);
+    diagnosticOutputs.push({ code: expected, output });
+  });
+});
+
+describe("Errors and fixes messages", () => {
+  test("each message cell is printed by a compiler for that row's codes", () => {
+    const rows = sectionText(readme, "Errors and fixes")
+      .split("\n")
+      .filter((line) => /^\| TS\d/.test(line))
+      .map((line) => line.replaceAll("\\|", "\u0000").split("|"));
+    expect(rows.length).toBeGreaterThan(0);
+    for (const [, codes = "", messages = ""] of rows) {
+      const rowCodes = [...codes.matchAll(/TS\d+/g)].map(([match]) => match);
+      for (const message of messages.replaceAll("\u0000", "|").split(" / ")) {
+        expect(
+          diagnosticOutputs.some(
+            ({ code: printed, output }) =>
+              rowCodes.includes(printed) && output.includes(message.trim()),
+          ),
+          `${rowCodes.join("/")}: ${message.trim()}`,
+        ).toBe(true);
+      }
+    }
   });
 });
 
@@ -623,11 +722,15 @@ function compilerOutput(compiler, tsconfig) {
  */
 function diagnosticLocations(compiler, tsconfig) {
   const output = compilerOutput(compiler, tsconfig);
-  const locations = [
+  const located = [
     ...output.matchAll(/^(\S+?)\((\d+),\d+\): error TS\d+/gm),
   ].map(([, file = "", line]) => `${file.replaceAll("\\", "/")}:${line}`);
-  if (output !== "" && locations.length === 0) {
+  // Also keep diagnostics without a file location, such as TS6059.
+  const unlocated = [...output.matchAll(/^error (TS\d+)/gm)].map(
+    ([, code]) => `tsconfig:${code}`,
+  );
+  if (output !== "" && located.length + unlocated.length === 0) {
     throw new Error(output);
   }
-  return locations;
+  return [...located, ...unlocated];
 }
