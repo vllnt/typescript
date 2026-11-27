@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
 import process from "node:process";
@@ -86,4 +86,39 @@ export function run(command, args, options = {}) {
  */
 export function runCompiler(compiler, args, options) {
   return run(process.execPath, [compilerPath(compiler), ...args], options);
+}
+
+/**
+ * Packs this package into `directory` and installs the tarball, plus any
+ * `devDependencies`, in a new `directory/consumer` project.
+ * @param {string} directory
+ * @param {Record<string, string>} [devDependencies]
+ * @returns {{ consumer: string, files: string[] }}
+ */
+export function installPackedConsumer(directory, devDependencies = {}) {
+  const pack = JSON.parse(
+    run("pnpm", ["pack", "--json", "--pack-destination", directory]),
+  );
+  const consumer = join(directory, "consumer");
+  mkdirSync(consumer);
+  writeFileSync(
+    join(consumer, "package.json"),
+    JSON.stringify({
+      devDependencies: {
+        "@vllnt/typescript": `file:${pack.filename}`,
+        ...devDependencies,
+      },
+      packageManager: loadJson(join(root, "package.json")).packageManager,
+      private: true,
+    }),
+  );
+  run(
+    "pnpm",
+    ["install", "--ignore-scripts", "--config.auto-install-peers=false"],
+    { cwd: consumer, timeout: 180_000 },
+  );
+  return {
+    consumer,
+    files: pack.files.map((/** @type {{ path: string }} */ { path }) => path),
+  };
 }

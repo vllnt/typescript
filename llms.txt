@@ -1,20 +1,33 @@
 # @vllnt/typescript
 
-> Strict shared TypeScript presets for Node.js, libraries, React, and Next.js, tested with TypeScript 6 and the native TypeScript 7 compiler.
+> Shared tsconfig presets for Node.js apps, npm libraries, React and Next.js, with strict type-checking, tested with TypeScript 6 and 7.
 
 - npm: https://www.npmjs.com/package/@vllnt/typescript
 - Repository: https://github.com/vllnt/typescript
 - Documentation: [README](./README.md)
+- API reference: [API](./README.md#api)
+- Errors and fixes: [Errors and fixes](./README.md#errors-and-fixes)
 - Changelog: [CHANGELOG](./CHANGELOG.md)
 - License: MIT
 
 Install independently in any project; no vllnt monorepo is required. npm latest
-is stable 3.0.1 at this audit; canary is a moving prerelease channel. Pin and test
-prereleases. See [Contributing](https://github.com/vllnt/typescript/blob/main/CONTRIBUTING.md) and the [Security policy](https://github.com/vllnt/typescript/blob/main/SECURITY.md).
+is the newest stable release; canary is a moving prerelease channel built from main.
+Pin and test prereleases. See [Contributing](https://github.com/vllnt/typescript/blob/main/CONTRIBUTING.md) and the [Security policy](https://github.com/vllnt/typescript/blob/main/SECURITY.md).
 
 ## For coding agents
 
-The documentation ships inside the package: `node_modules/@vllnt/typescript/` contains `README.md`, `llms.txt` and `CHANGELOG.md` next to the preset files, and they match the installed version. Read them before writing a `tsconfig.json`.
+The documentation ships inside the package: `node_modules/@vllnt/typescript/` contains `README.md`, `llms.txt` and `CHANGELOG.md` next to the preset files, and they match the installed version. The package contains only JSON presets for `extends`; there is no JavaScript or type export to import.
+
+## When to use
+
+- Use it when one `extends` line should set the compiler options of a Node.js app, an npm library, a bundled React app or a Next.js app.
+- Use it when the project compiles with TypeScript 7, or with TypeScript 6.0.2 or newer.
+- Do not use it on TypeScript 5 or older, or for ES5 output (TypeScript 7 removed `target: "ES5"`): use a `@tsconfig/*` preset made for your TypeScript version and runtime, such as `@tsconfig/node22`, or your own `tsconfig.json`.
+- Do not use it when the code cannot pass `strict`: write your own `tsconfig.json`. If only the extra flags fail, turn them off one at a time in your own `compilerOptions`.
+
+## Install
+
+`pnpm add --save-dev @vllnt/typescript@^3 typescript@^7 @types/node@^22`, then extend one preset, such as `"extends": "@vllnt/typescript/nodejs.json"`.
 
 ## Compatibility
 
@@ -25,7 +38,7 @@ The documentation ships inside the package: `node_modules/@vllnt/typescript/` co
 
 ## Presets
 
-Extend one preset per project; every preset extends `base.json`.
+Extend one preset per project; every preset extends `base.json`. Full option lists: [API](./README.md#api).
 
 - `@vllnt/typescript/base.json`: strict shared defaults and explicit ambient types; sets no `module`, `target` or `lib`
 - `@vllnt/typescript/nodejs.json`: Node.js applications; NodeNext, ES2024, emits declarations and source maps
@@ -38,21 +51,26 @@ Emitting presets do not enable `incremental`, so a clean build emits every outpu
 
 ## Strictness inherited from base.json
 
-Every preset enables `strict`, `noUncheckedIndexedAccess`, `noUncheckedSideEffectImports`, `noImplicitOverride`, `noImplicitReturns`, `noFallthroughCasesInSwitch` and `exactOptionalPropertyTypes`.
+Every preset enables `strict`, `noUncheckedIndexedAccess`, `noUncheckedSideEffectImports`, `noImplicitOverride`, `noImplicitReturns`, `noFallthroughCasesInSwitch` and `exactOptionalPropertyTypes`. The diagnostic codes and fixes are in [Errors and fixes](./README.md#errors-and-fixes).
 
 Migrating from version 2 (the last four flags are new):
 
 - `noImplicitOverride` (TS4114): add `override` to a method that replaces a base-class method.
 - `noImplicitReturns` (TS7030): return on every path; use `return undefined;` when that is intended.
 - `noFallthroughCasesInSwitch` (TS7029): end a non-empty `case` with `break`, `return` or `throw`.
-- `exactOptionalPropertyTypes` (TS2375, TS2379, TS2322): write `prop?: T | undefined` where `undefined` is a valid value, or omit the key.
-- JavaScript output does not change. Under `exactOptionalPropertyTypes`, inferred declarations can: `count?: number | undefined` is emitted as `count?: number`.
+- `exactOptionalPropertyTypes` (TS2375, TS2379, TS2412): write `prop?: T | undefined` where `undefined` is a valid value, or omit the key.
+- JavaScript output does not change. Under `exactOptionalPropertyTypes`, inferred declarations can: an optional property that version 2 emitted in declarations as `count?: number | undefined` is now emitted as `count?: number`. A type written as `number | undefined` keeps `undefined`.
 - To adopt them gradually, set a flag to `false` in the project's own `compilerOptions` after `extends`.
 
 ## Related packages
 
-- [@vllnt/eslint-config](https://oss.vllnt.com/packages/eslint-config): strict ESLint presets for TypeScript projects; lint rules, configured separately from these compiler presets.
+- [@vllnt/eslint-config](https://oss.vllnt.com/packages/eslint-config): ESLint presets for TypeScript projects. It sets lint rules and these presets set compiler options; each is installed and configured on its own. This repository uses both: `eslint.config.mjs` imports `@vllnt/eslint-config/nodejs` (a devDependency) and lints the scripts and tests.
 
 ## Ecosystem
 
-- vllnt oss index: https://oss.vllnt.com/llms.txt
+- [Package page](https://oss.vllnt.com/packages/typescript)
+- [Release feed](https://oss.vllnt.com/packages/typescript/rss.xml)
+- [All @vllnt packages](https://oss.vllnt.com/llms.txt)
+- [Search vllnt packages and docs](https://index.vllnt.com)
+- [vllnt](https://vllnt.com/llms.txt)
+- [Author](https://bntvllnt.com)

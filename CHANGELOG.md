@@ -2,27 +2,28 @@
 
 All notable changes to this project are documented in this file. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project uses semantic versioning.
 
-## [Unreleased]
-
 ## [3.0.1] - 2026-11-27
 
 Presets are unchanged from 3.0.0. This release changes package metadata and the shipped documentation.
 
 ### Added
 
-- `README.md` and `llms.txt` have a "For coding agents" note: the documentation ships in `node_modules/@vllnt/typescript/` and matches the installed version. `llms.txt` links to the shipped `README.md` and `CHANGELOG.md` with relative paths and adds related-package and ecosystem links; the README adds a related-packages section and documents each preset's notable compiler options. Presets are unchanged.
+- The README follows the shared @vllnt layout for coding agents: a "For coding agents" note (the documentation ships in `node_modules/@vllnt/typescript/` and matches the installed version), When to use, Install, Quick start, API (each preset's own `compilerOptions`), Common tasks, Errors and fixes, Limits and gotchas, Compatibility, Related packages, and a Links section (package docs and release feed, package index and search, source and issues, Discord and X, company and author, sponsor), which replaces the Author section, then the footer. `llms.txt` rewrites the summary, adds the same note and when-to-use, links to the shipped `README.md` (API and errors tables) and `CHANGELOG.md` with relative paths, and ends with a six-link Ecosystem block (package page, release feed, all @vllnt packages, search, vllnt, author).
+- `tests/docs.test.mjs` checks the README and `llms.txt` against the packed package under TypeScript 6 and 7: required sections in order, the install command and quick start within the first 40 lines, the `llms.txt` summary line, that the packed files include `README.md`, `llms.txt` and `CHANGELOG.md`, tagged code blocks, relative links and anchors, every export in the API table, each preset's options, and every code in "Errors and fixes" with each message found in at least one compiler's output. It compiles every README `tsconfig.json` and source example and requires exactly the diagnostics its `// error` comments mark; the Quick start and "Build an npm library" examples must emit exactly the files listed, and the other emitting examples must emit `index.js`. No packed or tracked file may name the retired vllnt domain.
 - `scripts/check-package-contents.sh` checks the packed file list against an allowlist and the privacy denylist, and fails when a path listed in `.package-contents-required` is missing from the tarball. `pnpm check`, the canary job and the release job run it before publishing; it reads both the array-shaped and the npm 12 object-shaped `npm pack --json` output.
 - A Privacy Guard workflow runs on every push and pull request. It checks commit author, committer and trailer emails against an allowlist of GitHub noreply addresses, rejects private hostnames and internal IPs in commit metadata, scans tracked files against a privacy denylist, and runs a gitleaks secret scan.
 
 ### Changed
 
-- `package.json` `homepage` is https://oss.vllnt.com/packages/typescript, with more accurate `keywords`. Publish path filters include `README.md`, `llms.txt` and `CHANGELOG.md`, so a documentation-only change publishes a canary.
+- `package.json` `homepage` is https://oss.vllnt.com/packages/typescript, and `description` and `keywords` name what the package does and the stack. Publish path filters include `README.md`, `llms.txt` and `CHANGELOG.md`, so a documentation-only change publishes a canary.
 - Upgraded the development dependencies `vitest` and `@vitest/coverage-v8` to 5.1.1 and `prettier` to 3.10.1, and added a scoped override to a patched `minimatch` 11 (11.0.9) for GHSA-g3hv-75wg-m249 (moderate, reached only through the development lint toolchain). Removed the unused root development dependency `@types/react-dom` (the integration fixtures declare their own). Presets and the packed file list are unchanged.
 - Upgraded the development dependency `@vllnt/eslint-config` to 2.1.0 and the integration fixtures to `next` 16.4.6 and `vite` 8.3.8. No change to the presets or the packed file list.
 - Moved the repository package manager to pnpm 12.22.0 (`packageManager`; the lockfile now also pins pnpm itself). No change to the presets or the packed file list.
 
 ### Fixed
 
+- The README and `llms.txt` listed TS2322 as an `exactOptionalPropertyTypes` diagnostic; it is TS2412 (assigning `undefined` to an optional property), next to TS2375 and TS2379.
+- The README said that TypeScript 7 cannot disable strict mode. It can; with these presets, `strict: false` also needs `exactOptionalPropertyTypes: false` (TS5052).
 - `pnpm check` type-checks the repository scripts and tests (`pnpm typecheck`, TypeScript 6 and 7). The root `tsconfig.json` enabled `checkJs`, but nothing ran it, and it had 23 errors under TypeScript 7 and 21 under TypeScript 6. The root `tsconfig.json` sets `declaration: false`, because it only type-checks.
 
 ## [3.0.0] - 2026-11-16
@@ -90,7 +91,6 @@ The flags add diagnostics and leave JavaScript output unchanged, but inferred de
 - Added `base.json`, `nodejs.json`, `node-library.json`, `react.json`, and `nextjs.json` presets.
 - Documented Node.js 22+ and TypeScript 5+ expectations.
 
-[Unreleased]: https://github.com/vllnt/typescript/compare/v3.0.1...HEAD
 [3.0.1]: https://github.com/vllnt/typescript/compare/v3.0.0...v3.0.1
 [3.0.0]: https://github.com/vllnt/typescript/compare/v2.0.1...v3.0.0
 [2.0.1]: https://github.com/vllnt/typescript/compare/v2.0.0...v2.0.1

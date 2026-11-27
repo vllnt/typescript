@@ -1,7 +1,7 @@
 {
   "name": "@vllnt/typescript",
   "version": "3.0.1",
-  "description": "Shared TypeScript configurations for vllnt projects",
+  "description": "Shared tsconfig presets for Node.js apps, npm libraries, React and Next.js, with strict type-checking, tested with TypeScript 6 and 7.",
   "license": "MIT",
   "author": {
     "name": "bntvllnt",
@@ -22,11 +22,15 @@
   "keywords": [
     "typescript",
     "tsconfig",
-    "config",
+    "tsconfig-base",
+    "typescript-config",
     "shared-config",
+    "strict",
     "nodejs",
     "react",
-    "nextjs"
+    "nextjs",
+    "vite",
+    "typescript-7"
   ],
   "packageManager": "pnpm@12.22.0",
   "engines": {

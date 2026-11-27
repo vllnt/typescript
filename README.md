@@ -1,23 +1,198 @@
 # @vllnt/typescript
 
-Shared TypeScript configurations for Node.js, libraries, React, and Next.js. Version 3 targets the native TypeScript 7 compiler while retaining a tested TypeScript 6 migration path.
-
-Use these independently in any project; no vllnt monorepo or runtime dependency
-is required. Extend a preset, then supply project-specific paths and ambient types.
+Shared tsconfig presets for Node.js apps, npm libraries, React and Next.js, with strict type-checking, tested with TypeScript 6 and 7.
 
 ## For coding agents
 
-The documentation ships inside the package: `node_modules/@vllnt/typescript/` contains `README.md`, `llms.txt` and `CHANGELOG.md` next to the preset files, and they match the installed version. Read them before writing a `tsconfig.json`.
+These docs ship in `node_modules/@vllnt/typescript/` (`README.md`, `llms.txt`, `CHANGELOG.md`) and match the installed version. The package contains only JSON presets for `extends`; there is no JavaScript or type export to import.
+
+## When to use
+
+- Use it when one `extends` line should set the compiler options of a Node.js app, an npm library, a bundled React app or a Next.js app.
+- Use it when the project compiles with TypeScript 7, or with TypeScript 6.0.2 or newer.
+- Do not use it on TypeScript 5 or older, or for ES5 output (TypeScript 7 removed `target: "ES5"`): use a `@tsconfig/*` preset made for your TypeScript version and runtime, such as `@tsconfig/node22`, or your own `tsconfig.json`.
+- Do not use it when the code cannot pass `strict`: write your own `tsconfig.json`. If only the extra flags fail, turn them off one at a time (see [Common tasks](#turn-off-one-strictness-flag)).
 
 ## Install
 
-For TypeScript 7 projects:
-
 ```sh
-pnpm add --save-dev @vllnt/typescript@^3 typescript@^7
+pnpm add --save-dev @vllnt/typescript@^3 typescript@^7 @types/node@^22
 ```
 
-For tools that still require the TypeScript JavaScript API, install TypeScript 7 as the build compiler and TypeScript 6 under the canonical package name:
+## Quick start
+
+A Node.js application with its sources in `src/`. `tsconfig.json`:
+
+```json
+{
+  "extends": "@vllnt/typescript/nodejs.json",
+  "compilerOptions": { "outDir": "dist", "rootDir": "src", "types": ["node"] },
+  "include": ["src"]
+}
+```
+
+`src/index.ts`:
+
+```ts
+import { cwd } from "node:process";
+
+export const directory: string = cwd();
+```
+
+Run `pnpm exec tsc`. It writes `dist/index.js`, `dist/index.js.map` and `dist/index.d.ts`.
+
+## API
+
+The package exports these files. Extend one preset per project; every preset extends `base.json`.
+
+| Export                                | Use for                                                     | Reference                              |
+| ------------------------------------- | ----------------------------------------------------------- | -------------------------------------- |
+| `@vllnt/typescript/base.json`         | Strictness defaults only; you set `module`, `target`, `lib` | [base.json](#basejson)                 |
+| `@vllnt/typescript/nodejs.json`       | Node.js applications                                        | [nodejs.json](#nodejsjson)             |
+| `@vllnt/typescript/node-library.json` | npm packages that publish JavaScript and declarations       | [node-library.json](#node-libraryjson) |
+| `@vllnt/typescript/react.json`        | React applications built by a bundler such as Vite          | [react.json](#reactjson)               |
+| `@vllnt/typescript/nextjs.json`       | Next.js applications                                        | [nextjs.json](#nextjsjson)             |
+| `@vllnt/typescript/package.json`      | Reading the installed version                               | [Compatibility](#compatibility)        |
+
+Each block below is the preset's own `compilerOptions`. Options you set after `extends` replace them; arrays such as `types` and `lib` are replaced, not merged.
+
+### base.json
+
+```json
+{
+  "strict": true,
+  "esModuleInterop": true,
+  "forceConsistentCasingInFileNames": true,
+  "isolatedModules": true,
+  "skipLibCheck": true,
+  "noUncheckedIndexedAccess": true,
+  "noUncheckedSideEffectImports": true,
+  "noImplicitOverride": true,
+  "noImplicitReturns": true,
+  "noFallthroughCasesInSwitch": true,
+  "exactOptionalPropertyTypes": true,
+  "stableTypeOrdering": true,
+  "types": [],
+  "libReplacement": false,
+  "resolveJsonModule": true
+}
+```
+
+`types: []` loads no ambient `@types` package; list each one you need. `stableTypeOrdering` makes TypeScript 6 order types as TypeScript 7 does, and can make TypeScript 6 slower.
+
+### nodejs.json
+
+```json
+{
+  "lib": ["ES2024"],
+  "module": "NodeNext",
+  "moduleResolution": "NodeNext",
+  "target": "ES2024",
+  "declaration": true,
+  "sourceMap": true
+}
+```
+
+### node-library.json
+
+```json
+{
+  "lib": ["ES2024"],
+  "module": "NodeNext",
+  "moduleResolution": "NodeNext",
+  "target": "ES2024",
+  "declaration": true,
+  "declarationMap": true,
+  "sourceMap": true
+}
+```
+
+### react.json
+
+```json
+{
+  "lib": ["DOM", "DOM.Iterable", "ES2024"],
+  "module": "ESNext",
+  "moduleResolution": "Bundler",
+  "target": "ES2022",
+  "jsx": "react-jsx",
+  "declaration": true,
+  "sourceMap": true
+}
+```
+
+### nextjs.json
+
+```json
+{
+  "lib": ["DOM", "DOM.Iterable", "ES2024"],
+  "module": "ESNext",
+  "moduleResolution": "Bundler",
+  "target": "ES2022",
+  "jsx": "preserve",
+  "noEmit": true,
+  "incremental": true,
+  "allowJs": true,
+  "plugins": [{ "name": "next" }]
+}
+```
+
+## Common tasks
+
+### Build an npm library
+
+`tsconfig.json`:
+
+```json
+{
+  "extends": "@vllnt/typescript/node-library.json",
+  "compilerOptions": { "outDir": "dist", "rootDir": "src", "types": ["node"] },
+  "include": ["src"]
+}
+```
+
+The build writes `.js`, `.d.ts`, `.js.map` and `.d.ts.map` files. Without `"type": "module"` in `package.json`, NodeNext writes CommonJS.
+
+### Type-check a React app that Vite builds
+
+`tsconfig.json`:
+
+```json
+{
+  "extends": "@vllnt/typescript/react.json",
+  "compilerOptions": { "noEmit": true, "types": ["react"] },
+  "include": ["src"]
+}
+```
+
+`src/App.tsx`:
+
+```tsx
+export function App() {
+  return <h1>Hello</h1>;
+}
+```
+
+To let `tsc` emit instead, replace `noEmit` with `"outDir": "dist"` and `"rootDir": "src"`.
+
+### Configure a Next.js app
+
+`tsconfig.json`:
+
+```json
+{
+  "extends": "@vllnt/typescript/nextjs.json",
+  "compilerOptions": { "types": ["node", "react"] },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+}
+```
+
+The integration test builds Next.js 16.4.6 with TypeScript 7.
+
+### Keep TypeScript 6 for tools that need its JavaScript API
+
+`tsc` runs TypeScript 7 and `tsc6` runs TypeScript 6, so tools such as `typescript-eslint` can keep importing `typescript`. This is the [official side-by-side arrangement](https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/). `package.json`:
 
 ```json
 {
@@ -29,23 +204,9 @@ For tools that still require the TypeScript JavaScript API, install TypeScript 7
 }
 ```
 
-This is the [official side-by-side migration arrangement](https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/): `tsc` runs TypeScript 7, `tsc6` runs TypeScript 6, and tools such as `typescript-eslint` can continue importing the TypeScript 6 API.
+### Turn off one strictness flag
 
-## Presets
-
-Extend one preset per project. Every preset extends `base.json`, so it inherits the [base defaults](#base-defaults).
-
-| Preset              | Extend it for                                                     | Module / resolution | Target / lib                       | Emit                                  | Other options                                                  |
-| ------------------- | ----------------------------------------------------------------- | ------------------- | ---------------------------------- | ------------------------------------- | -------------------------------------------------------------- |
-| `base.json`         | Other environments; you set `module`, `target` and `lib` yourself | Not set             | Not set                            | Not set                               | Strictness and interop defaults only                           |
-| `nodejs.json`       | Node.js applications                                              | NodeNext / NodeNext | ES2024 / ES2024                    | JavaScript, declarations, source maps | None                                                           |
-| `node-library.json` | Publishable npm packages                                          | NodeNext / NodeNext | ES2024 / ES2024                    | JavaScript, declarations, both maps   | `declarationMap`                                               |
-| `react.json`        | Bundled React applications (for example Vite)                     | ESNext / Bundler    | ES2022 / DOM, DOM.Iterable, ES2024 | JavaScript, declarations, source maps | `jsx: "react-jsx"`                                             |
-| `nextjs.json`       | Next.js applications                                              | ESNext / Bundler    | ES2022 / DOM, DOM.Iterable, ES2024 | None (`noEmit`)                       | `jsx: "preserve"`, `allowJs`, `incremental`, the `next` plugin |
-
-Emitting presets do not enable `incremental`. Unless you opt in, a clean build emits every output even when a `.tsbuildinfo` file is left over. If you set `incremental: true`, delete the `.tsbuildinfo` file together with the output directory before a clean build. `nextjs.json` keeps `incremental` because it does not emit; if you override `noEmit`, also set `incremental: false`.
-
-### Node.js application
+Set the flag after `extends`. `tsconfig.json`:
 
 ```json
 {
@@ -53,137 +214,98 @@ Emitting presets do not enable `incremental`. Unless you opt in, a clean build e
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": "src",
-    "types": ["node"]
+    "exactOptionalPropertyTypes": false
   },
   "include": ["src"]
 }
 ```
 
-### Node library
+### Migrating from version 2
 
-```json
-{
-  "extends": "@vllnt/typescript/node-library.json",
-  "compilerOptions": {
-    "outDir": "dist",
-    "rootDir": "src",
-    "types": ["node"]
-  },
-  "include": ["src"]
-}
-```
-
-### React
-
-```json
-{
-  "extends": "@vllnt/typescript/react.json",
-  "compilerOptions": {
-    "outDir": "dist",
-    "rootDir": "src",
-    "types": ["react"]
-  },
-  "include": ["src"]
-}
-```
-
-When a bundler such as Vite emits the JavaScript, replace `outDir` with `"noEmit": true` so `tsc` only type-checks.
-
-### Next.js
-
-```json
-{
-  "extends": "@vllnt/typescript/nextjs.json",
-  "compilerOptions": {
-    "types": ["node", "react"]
-  },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
-}
-```
-
-## Base defaults
-
-Every specialized preset inherits:
-
-- `strict: true`
-- `isolatedModules: true`
-- `noUncheckedIndexedAccess: true`
-- `noUncheckedSideEffectImports: true`
-- `noImplicitOverride: true`
-- `noImplicitReturns: true`
-- `noFallthroughCasesInSwitch: true`
-- `exactOptionalPropertyTypes: true`
-- `forceConsistentCasingInFileNames: true`
-- `skipLibCheck: true`
-- `esModuleInterop: true`
-- `resolveJsonModule: true`
-- `stableTypeOrdering: true`
-- `libReplacement: false`
-- `types: []`
-
-Ambient type packages are intentionally opt-in. List every required package in the consuming project's `types` array. Emitting projects must also set `rootDir` explicitly.
-
-`stableTypeOrdering` aligns TypeScript 6 output with TypeScript 7. It can make TypeScript 6 type-checking slower; TypeScript 7 always uses stable ordering.
-
-## Migrating from version 2
-
-Version 3 turns on four more flags in `base.json`, so every preset inherits them. Each one adds diagnostics, and none changes JavaScript output. `exactOptionalPropertyTypes` can change inferred declarations (see below). Run `tsc --noEmit` after upgrading and fix what it reports:
-
-| Flag                         | What it catches                                                                        | Usual fix                                                                                                   |
-| ---------------------------- | -------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `noImplicitOverride`         | A method that replaces a base-class method without saying so (TS4114)                  | Add the `override` modifier, or rename the method if it was not meant to replace the base one.              |
-| `noImplicitReturns`          | A function that returns a value on some paths and falls off the end on others (TS7030) | Add the missing `return` (`return undefined;` if that is intended).                                         |
-| `noFallthroughCasesInSwitch` | A non-empty `case` that runs into the next one (TS7029)                                | End the case with `break`, `return` or `throw`. Empty cases that share a body are still allowed.            |
-| `exactOptionalPropertyTypes` | Assigning `undefined` to a property declared `prop?: T` (TS2375, TS2379, TS2322)       | Write `prop?: T \| undefined` if `undefined` is a valid value, or leave the key out when there is no value. |
-
-`exactOptionalPropertyTypes` is the one most likely to need many edits. `prop?: T` now means "the key may be missing", not "the value may be undefined":
+Version 3 turns on `noImplicitOverride`, `noImplicitReturns`, `noFallthroughCasesInSwitch` and `exactOptionalPropertyTypes` in `base.json`. They add diagnostics and leave JavaScript output unchanged. Run `tsc --noEmit` and fix what it reports; [Errors and fixes](#errors-and-fixes) lists each code. Under `exactOptionalPropertyTypes`, `prop?: T` means "the key may be missing", not "the value may be undefined". `src/options.ts`:
 
 ```ts
 interface Options {
   name?: string;
 }
 
-const a: Options = { name: undefined }; // error
-const b: Options = {}; // omit the key
+export const a: Options = { name: undefined }; // error
+export const b: Options = {};
 
-function build(name: string | undefined): Options {
-  return name === undefined ? {} : { name }; // add the key only when it is set
+export function build(name: string | undefined): Options {
+  return name === undefined ? {} : { name };
 }
 ```
 
-The same applies to call arguments and to props you pass to libraries: `use({ name: undefined })` is an error when the parameter's type does not list `undefined`. Widen your own types, or build the object without the key.
+Inferred declarations can change: an optional property that version 2 emitted in declarations as `count?: number | undefined` is now emitted as `count?: number`. Libraries should compare their `.d.ts` output when upgrading. The [flag fixtures](https://github.com/vllnt/typescript/tree/main/tests/fixtures/flags) show a failing and an accepted form of each flag.
 
-`exactOptionalPropertyTypes` also changes declaration emit. When TypeScript infers a type that has an optional property, it now prints `count?: number` where it used to print `count?: number | undefined`. Types you annotate yourself are copied as written. If you publish a library, compare the `.d.ts` files before and after upgrading.
+### Migrating from version 1
 
-To adopt the flags one at a time, set the ones you are not ready for to `false` in your own `compilerOptions` (after `extends`) and remove the override as you fix each one. The [fixtures in `tests/fixtures/flags`](https://github.com/vllnt/typescript/tree/main/tests/fixtures/flags) show a failing and an accepted form of each pattern.
-
-## Migrating from version 1
-
-Version 2 supports TypeScript `>=6.0.2 <8` and drops TypeScript 5. Before upgrading:
+Version 2 supports TypeScript `>=6.0.2 <8` and drops TypeScript 5:
 
 1. Remove `baseUrl` and make `paths` targets relative to the project root.
-2. Replace legacy `moduleResolution: "node"` with `"NodeNext"` for Node.js or `"Bundler"` for bundled applications.
+2. Replace `moduleResolution: "node"` with `"NodeNext"` for Node.js or `"Bundler"` for bundled applications.
 3. Set `rootDir` in projects that emit files.
 4. List required ambient packages in `types`, such as `node` or `vitest/globals`.
-5. Use Next.js 16.3 or newer when building with TypeScript 7.
-6. Keep TypeScript 6 available through the side-by-side setup while ESLint or other tools require the legacy JavaScript API.
+5. Use a Next.js release that builds with TypeScript 7; the integration test uses 16.4.6.
+6. Keep TypeScript 6 available side by side while ESLint or other tools require its JavaScript API.
 
-TypeScript 7 also removes ES5 targeting, legacy module formats and resolution, `downlevelIteration`, and the ability to disable `esModuleInterop`, `allowSyntheticDefaultImports`, or strict mode.
+## Errors and fixes
+
+The package runs no code and throws nothing. These are the compiler diagnostics that the presets cause or that commonly follow from them. `tests/docs.test.mjs` runs TypeScript 6 and 7 and reproduces each code with the compiler that reports it: the rows TS5102 / TS5101 and TS5108 / TS5107 give TypeScript 7's code first and TypeScript 6's second, and both compilers report every other code. It finds each message in the output of at least one of them.
+
+| Code             | Message contains                                                                                                                 | Cause                                                                                                                                                   | Fix                                                                                                     |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| TS6053           | File '@vllnt/typescript/nodejs' not found                                                                                        | `extends` without `.json`, or the package is not installed (the message then names the specifier as written, such as `'@vllnt/typescript/nodejs.json'`) | Write the full export path, such as `@vllnt/typescript/nodejs.json`, and install the package            |
+| TS2591           | Cannot find name 'process'. Do you need to install type definitions for node?                                                    | `types: []` loads no `@types` package                                                                                                                   | Install `@types/node` and add `"node"` to `types`                                                       |
+| TS5011           | The common source directory of 'tsconfig.json' is './src'                                                                        | `outDir` without `rootDir`                                                                                                                              | Set `rootDir`, such as `"rootDir": "src"`                                                               |
+| TS6059           | is not under 'rootDir'                                                                                                           | `include` lists files outside `rootDir`, such as `tests/` next to `src/`                                                                                | Type-check those files with a separate `tsconfig.json` that sets `noEmit`, or widen `rootDir`           |
+| TS2835           | Relative import paths need explicit file extensions in ECMAScript imports                                                        | NodeNext in a package with `"type": "module"`                                                                                                           | Import `./file.js`, not `./file`                                                                        |
+| TS1309           | The current file is a CommonJS module and cannot use 'await' at the top level                                                    | Top-level `await` under NodeNext without `"type": "module"`                                                                                             | Add `"type": "module"` to `package.json`, or rename the file to `.mts`                                  |
+| TS5110           | Option 'module' must be set to 'NodeNext' when option 'moduleResolution' is set to 'NodeNext'                                    | `module` overridden on `nodejs.json` or `node-library.json`                                                                                             | Override `module` and `moduleResolution` together, or extend `react.json` for bundled code              |
+| TS5109 / TS5095  | Option 'moduleResolution' must be set to 'NodeNext' (or left unspecified) when option 'module' is set to 'NodeNext'              | `moduleResolution: "Bundler"` alone on `nodejs.json` or `node-library.json`                                                                             | The same                                                                                                |
+| TS5102 / TS5101  | Option 'baseUrl' has been removed / Option 'baseUrl' is deprecated                                                               | `baseUrl`, `downlevelIteration` or `outFile` in your `tsconfig.json`                                                                                    | Remove the option; make `paths` targets relative, and bundle instead of `outFile`                       |
+| TS5108 / TS5107  | Option 'target=ES5' has been removed / Option 'target=ES5' is deprecated                                                         | A removed value: `target: "ES5"`, `moduleResolution: "node"` or `"classic"`, `esModuleInterop: false`, `allowSyntheticDefaultImports: false`            | Remove the option, or use a supported value                                                             |
+| TS5052           | Option 'exactOptionalPropertyTypes' cannot be specified without specifying option 'strictNullChecks'                             | `strict: false` (or `strictNullChecks: false`) while `exactOptionalPropertyTypes` is on                                                                 | Also set `exactOptionalPropertyTypes: false`                                                            |
+| TS17004          | Cannot use JSX unless the '--jsx' flag is provided                                                                               | A `.tsx` file in a project on `nodejs.json`, `node-library.json` or `base.json`                                                                         | Extend `react.json` or `nextjs.json`, or set `jsx`                                                      |
+| TS2882           | Cannot find module or type declarations for side-effect import                                                                   | `noUncheckedSideEffectImports` with an import such as `import "./styles.css"`                                                                           | Fix the path, or declare the module, such as `declare module "*.css";`, or add `vite/client` to `types` |
+| TS18048 / TS2532 | 'first' is possibly 'undefined' / Object is possibly 'undefined'                                                                 | `noUncheckedIndexedAccess`: `array[0]` and `record[key]` have type `T \| undefined`                                                                     | Check for `undefined` before use                                                                        |
+| TS4114           | This member must have an 'override' modifier                                                                                     | `noImplicitOverride`                                                                                                                                    | Add `override` to the method, or rename it if it was not meant to replace the base method               |
+| TS7030           | Not all code paths return a value                                                                                                | `noImplicitReturns`                                                                                                                                     | Return on every path, `return undefined;` if intended                                                   |
+| TS7029           | Fallthrough case in switch                                                                                                       | `noFallthroughCasesInSwitch`                                                                                                                            | End each non-empty `case` with `break`, `return` or `throw`; empty cases that share a body are allowed  |
+| TS2375           | Type '{ name: undefined; }' is not assignable to type 'Options' with 'exactOptionalPropertyTypes: true'                          | `exactOptionalPropertyTypes`: `undefined` given to `prop?: T`                                                                                           | Write `prop?: T \| undefined`, or leave the key out                                                     |
+| TS2379           | Argument of type '{ name: undefined; }' is not assignable to parameter of type 'Options' with 'exactOptionalPropertyTypes: true' | The same, in a call argument                                                                                                                            | The same                                                                                                |
+| TS2412           | Type 'undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'                                      | The same, in an assignment such as `options.name = undefined`                                                                                           | The same, or `delete options.name`                                                                      |
+
+## Limits and gotchas
+
+- The presets set no `outDir`, `rootDir`, `paths`, `include` or `files`. TypeScript resolves those relative to the file that sets them, so set them in your own `tsconfig.json`.
+- `extends` must name an exported path with `.json`; `@vllnt/typescript/nodejs` fails with TS6053.
+- `nodejs.json` and `node-library.json` use NodeNext: the nearest `package.json` `"type"` decides between ESM and CommonJS output for `.ts` files (`.mts` is always ESM, `.cts` always CommonJS), and ESM needs file extensions in relative imports.
+- Emitting presets do not enable `incremental`, so a clean build emits every file even when a `.tsbuildinfo` is left over. If you set `incremental: true`, delete the `.tsbuildinfo` with the output directory before a clean build.
+- `nextjs.json` keeps `incremental` because it sets `noEmit`. If you override `noEmit`, also set `incremental: false`.
+- The `next` plugin in `nextjs.json` is an editor language-service plugin. `tsc` ignores it, and TypeScript 7 `--showConfig` leaves it out.
+- `skipLibCheck: true` skips type errors inside `.d.ts` files, including those of dependencies.
+- `strict: false` alone fails with TS5052, because `exactOptionalPropertyTypes` needs `strictNullChecks`. Also set `exactOptionalPropertyTypes: false`.
+- TypeScript 7 removed `target: "ES5"`, `moduleResolution: "node"` and `"classic"`, `esModuleInterop: false`, `allowSyntheticDefaultImports: false` (TS5108), and `baseUrl`, `downlevelIteration` and `outFile` (TS5102). TypeScript 6 reports them as deprecated.
+- Under `exactOptionalPropertyTypes`, an optional property whose type is inferred, which version 2 emitted in declarations as `count?: number | undefined`, is now emitted as `count?: number`. Types you annotate yourself are copied as written, so a written `count?: number | undefined` keeps `undefined`.
+- Install the `@types/node` major that matches your Node.js runtime; 22 is the oldest supported.
 
 ## Compatibility
 
 | Surface                | Supported version                                                                |
 | ---------------------- | -------------------------------------------------------------------------------- |
+| TypeScript (peer)      | `>=6.0.2 <8`                                                                     |
 | Node.js consumers      | `>=22`                                                                           |
-| TypeScript             | `>=6.0.2 <8`                                                                     |
 | Tested compilers       | TypeScript 7.0.2, and `@typescript/typescript6` 6.0.2 (its `tsc6` reports 6.0.3) |
 | Next.js integration    | 16.4.6                                                                           |
 | React integration      | 19.3.1                                                                           |
 | Vite integration       | 8.3.8                                                                            |
 | Repository development | Node.js 22.13+, pnpm 12.22.0                                                     |
 
-## Development
+The integration rows are the tested versions, not requirements.
+
+## Testing
 
 ```sh
 pnpm install --frozen-lockfile
@@ -191,7 +313,7 @@ pnpm check
 pnpm pack --dry-run
 ```
 
-The checks type-check the repository scripts and tests and compile every preset with TypeScript 6 and 7, prove that each inherited strictness flag is active, verify declaration emit, install and compile the packed package, enforce full test-helper coverage, and build real React/Vite and Next.js fixtures.
+The checks type-check the repository scripts and tests and compile every preset with TypeScript 6 and 7, prove that each inherited strictness flag is active, verify declaration emit, install and compile the packed package, check this README against the packed package, enforce full test-helper coverage, and build real React/Vite and Next.js fixtures.
 
 ## Versioning
 
@@ -200,27 +322,33 @@ The checks type-check the repository scripts and tests and compile every preset 
 - **Patch:** fixes, documentation, tests, or CI changes without consumer-visible behavior changes.
 - **Build-cache exception:** a patch may remove a build-cache default, such as `incremental`, that makes builds emit wrong or missing output. JavaScript, declaration, and source-map output of a clean build and all diagnostics must stay the same. The changelog states the cache effect and how to opt back in. 2.0.1 uses this exception.
 
-## Documentation and support
+npm `latest` is the newest stable release. `@canary` selects moving prereleases built from `main`; pin and test them before adoption. See the [changelog](CHANGELOG.md) and the [LLM index](llms.txt).
 
-- [LLM index](llms.txt) · [Changelog](CHANGELOG.md)
-- [Contributing](https://github.com/vllnt/typescript/blob/main/CONTRIBUTING.md) · [Issues](https://github.com/vllnt/typescript/issues)
-- [Security policy and private reporting](https://github.com/vllnt/typescript/blob/main/SECURITY.md)
+## Security
 
-npm `latest` is stable `3.0.1` at this audit. `@canary` selects moving prereleases;
-pin and test them before adoption. The compatibility matrix above describes
-this version's tested integrations, not a requirement to use every framework.
+Report vulnerabilities privately as described in the [security policy](https://github.com/vllnt/typescript/blob/main/SECURITY.md).
 
 ## Related packages
 
-- [`@vllnt/eslint-config`](https://oss.vllnt.com/packages/eslint-config): strict ESLint presets for TypeScript projects. Use it for lint rules and `@vllnt/typescript` for compiler options; they are installed and configured separately.
+- [`@vllnt/eslint-config`](https://oss.vllnt.com/packages/eslint-config): ESLint presets for TypeScript projects. It sets lint rules and `@vllnt/typescript` sets compiler options; each is installed and configured on its own. This repository uses both: `eslint.config.mjs` imports `@vllnt/eslint-config/nodejs` (a devDependency) and lints the scripts and tests.
 
-## Author
+## Contributing
 
-Built by [bntvllnt](https://github.com/bntvllnt) · [bntvllnt.com](https://bntvllnt.com).
-[Sponsor the work](https://github.com/sponsors/bntvllnt).
+See [CONTRIBUTING.md](https://github.com/vllnt/typescript/blob/main/CONTRIBUTING.md) and the [issues](https://github.com/vllnt/typescript/issues).
+
+## Links
+
+- Docs and changelog: [oss.vllnt.com/packages/typescript](https://oss.vllnt.com/packages/typescript) · [release feed](https://oss.vllnt.com/packages/typescript/rss.xml)
+- All @vllnt packages: [oss.vllnt.com](https://oss.vllnt.com) · [search packages and docs on index.vllnt.com](https://index.vllnt.com)
+- Source and issues: [GitHub](https://github.com/vllnt/typescript) · [issues](https://github.com/vllnt/typescript/issues)
+- Questions and updates: [Discord](https://bntvllnt.com/discord) · [X @bntvllnt](https://x.com/bntvllnt)
+- Company and author: [vllnt.com](https://vllnt.com) · [bntvllnt.com](https://bntvllnt.com) · [GitHub @bntvllnt](https://github.com/bntvllnt) · [LinkedIn](https://linkedin.com/in/bntvllnt)
+- Sponsor: [GitHub Sponsors](https://github.com/sponsors/bntvllnt)
 
 ## License
 
 [MIT](LICENSE)
 
-Part of vllnt oss: <https://oss.vllnt.com>
+---
+
+Part of [vllnt open source](https://oss.vllnt.com) · [Package page](https://oss.vllnt.com/packages/typescript) · [vllnt.com](https://vllnt.com) · Built by [bntvllnt](https://bntvllnt.com)
