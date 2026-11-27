@@ -4,6 +4,20 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+### Added
+
+- `tests/docs.test.mjs` checks the README and `llms.txt` against the packed package under TypeScript 6 and 7: required sections in order, the install command and quick start within the first 40 lines, tagged code blocks, relative links and anchors, every export in the API table, each preset's options, every README example, and every diagnostic in "Errors and fixes".
+
+### Changed
+
+- The README follows the shared @vllnt layout for coding agents: When to use, Install, Quick start, API (each preset's own `compilerOptions`), Common tasks, Errors and fixes, Limits and gotchas, Compatibility. It ends with links to the package page, vllnt open source, vllnt.com and the author. `llms.txt` adds the summary, when-to-use, links to the API and errors tables, and an Ecosystem block.
+- `package.json` `description` and `keywords` name what the package does and the stack. Presets are unchanged.
+
+### Fixed
+
+- The README and `llms.txt` listed TS2322 as an `exactOptionalPropertyTypes` diagnostic; it is TS2412 (assigning `undefined` to an optional property), next to TS2375 and TS2379.
+- The README said that TypeScript 7 cannot disable strict mode. It can; with these presets, `strict: false` also needs `exactOptionalPropertyTypes: false` (TS5052).
+
 ## [3.0.1] - 2026-11-27
 
 Presets are unchanged from 3.0.0. This release changes package metadata and the shipped documentation.
