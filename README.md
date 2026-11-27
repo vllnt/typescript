@@ -252,7 +252,7 @@ Version 2 supports TypeScript `>=6.0.2 <8` and drops TypeScript 5:
 
 ## Errors and fixes
 
-The package runs no code and throws nothing. These are the compiler diagnostics that the presets cause or that commonly follow from them. `tests/docs.test.mjs` reproduces each code under TypeScript 6 and 7 and finds each message in the output of at least one of them.
+The package runs no code and throws nothing. These are the compiler diagnostics that the presets cause or that commonly follow from them. `tests/docs.test.mjs` runs TypeScript 6 and 7 and reproduces each code with the compiler that reports it: the rows TS5102 / TS5101 and TS5108 / TS5107 give TypeScript 7's code first and TypeScript 6's second, and both compilers report every other code. It finds each message in the output of at least one of them.
 
 | Code             | Message contains                                                                                                                 | Cause                                                                                                                                                   | Fix                                                                                                     |
 | ---------------- | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
