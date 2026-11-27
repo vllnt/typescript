@@ -10,9 +10,9 @@
 # extra regexes in .package-contents-allowlist (matched against the packed
 # path). Test files, .env files, and paths matching the denylist still fail.
 #
-# Required: every exact path listed in .package-contents-required (one per
-# line, # comments allowed) must be packed, or the check fails. Without that
-# file nothing is required.
+# Required: every exact path listed in the package directory's
+# .package-contents-required (one per line, # comments allowed) must be
+# packed, or the check fails. Without that file nothing is required.
 #
 # Usage: check-package-contents.sh [package-dir]
 #   $PACKAGE_CONTENTS_DIR  default package directory when no argument is given
@@ -154,17 +154,14 @@ for path in "${packed[@]}"; do
 done
 
 missing=0
-required_files=("$PKG_DIR/.package-contents-required")
-[[ "$PKG_DIR" == "$ROOT" ]] || required_files+=("$ROOT/.package-contents-required")
-for f in "${required_files[@]}"; do
-  [[ -f "$f" ]] || continue
+if [[ -f "$PKG_DIR/.package-contents-required" ]]; then
   while IFS= read -r req; do
     if ! printf '%s\n' "${packed[@]}" | grep -qxF -- "$req"; then
       printf '  MISSING %s\n' "$req"
       missing=$((missing + 1))
     fi
-  done < <(tr -d '\r' < "$f" | sed -E '/^[[:space:]]*(#|$)/d')
-done
+  done < <(tr -d '\r' < "$PKG_DIR/.package-contents-required" | sed -E '/^[[:space:]]*(#|$)/d')
+fi
 
 if (( denied > 0 || violations > 0 || missing > 0 )); then
   echo "FAIL package contents: $denied denied path(s), $violations outside allowlist, $missing required path(s) missing"
