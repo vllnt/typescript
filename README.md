@@ -181,7 +181,7 @@ TypeScript 7 also removes ES5 targeting, legacy module formats and resolution, `
 | Next.js integration    | 16.4.6                                             |
 | React integration      | 19.3.1                                             |
 | Vite integration       | 8.3.8                                              |
-| Repository development | Node.js 22.13+, pnpm 11.28.8                       |
+| Repository development | Node.js 22.13+, pnpm 12.22.0                       |
 
 ## Development
 

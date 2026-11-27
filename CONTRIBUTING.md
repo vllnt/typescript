@@ -5,7 +5,7 @@ Thank you for helping improve the shared TypeScript presets.
 ## Requirements
 
 - Node.js 22.13 or newer
-- pnpm 11.28.8
+- pnpm 12.22.0
 
 ## Development
 
