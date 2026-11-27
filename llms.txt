@@ -11,8 +11,8 @@
 - License: MIT
 
 Install independently in any project; no vllnt monorepo is required. npm latest
-is stable 3.0.1 at this audit; canary is a moving prerelease channel. Pin and test
-prereleases. See [Contributing](https://github.com/vllnt/typescript/blob/main/CONTRIBUTING.md) and the [Security policy](https://github.com/vllnt/typescript/blob/main/SECURITY.md).
+is the newest stable release; canary is a moving prerelease channel built from main.
+Pin and test prereleases. See [Contributing](https://github.com/vllnt/typescript/blob/main/CONTRIBUTING.md) and the [Security policy](https://github.com/vllnt/typescript/blob/main/SECURITY.md).
 
 ## For coding agents
 
@@ -22,12 +22,12 @@ The documentation ships inside the package: `node_modules/@vllnt/typescript/` co
 
 - Use it when one `extends` line should set the compiler options of a Node.js app, an npm library, a bundled React app or a Next.js app.
 - Use it when the project compiles with TypeScript 7, or with TypeScript 6.0.2 or newer.
-- Do not use it on TypeScript 5 or older, or when you need ES5 output: use a `@tsconfig/*` preset that matches your compiler, such as `@tsconfig/node22`, or write your own `tsconfig.json`.
-- Do not use it when the code cannot pass `strict` plus the extra flags of `base.json`: write your own `tsconfig.json`, or start from `@tsconfig/recommended`.
+- Do not use it on TypeScript 5 or older, or for ES5 output (TypeScript 7 removed `target: "ES5"`): use a `@tsconfig/*` preset made for your TypeScript version and runtime, such as `@tsconfig/node22`, or your own `tsconfig.json`.
+- Do not use it when the code cannot pass `strict`: write your own `tsconfig.json`. If only the extra flags fail, turn them off one at a time in your own `compilerOptions`.
 
 ## Install
 
-`pnpm add --save-dev @vllnt/typescript typescript@^7`, then extend one preset, such as `"extends": "@vllnt/typescript/nodejs.json"`.
+`pnpm add --save-dev @vllnt/typescript@^3 typescript@^7`, then extend one preset, such as `"extends": "@vllnt/typescript/nodejs.json"`.
 
 ## Compatibility
 
