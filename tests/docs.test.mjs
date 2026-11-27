@@ -20,6 +20,7 @@ import {
   loadJson,
   presets,
   root,
+  run,
   runCompiler,
 } from "../scripts/test-utils.mjs";
 
@@ -323,7 +324,7 @@ describe("package metadata", () => {
     expect(description).toMatch(/^[^.]+(\.[^\s.][^.]*)*\.$/);
     expect(description).not.toMatch(/vllnt projects/i);
     expect(readme.split("\n")[2]).toBe(description);
-    expect(llms).toContain(`> ${description}`);
+    expect(llms.split("\n")[2]).toBe(`> ${description}`);
   });
 
   test("has 8 to 12 unique keywords", () => {
@@ -417,6 +418,12 @@ describe("README layout", () => {
 });
 
 describe("shipped docs", () => {
+  test("the packed files include README.md, llms.txt and CHANGELOG.md", () => {
+    expect(docFiles()).toEqual(
+      expect.arrayContaining(["README.md", "llms.txt", "CHANGELOG.md"]),
+    );
+  });
+
   test("every code block has a language tag and no elided parts", () => {
     for (const file of docFiles()) {
       for (const block of codeBlocks(readFileSync(join(root, file), "utf8"))) {
@@ -467,13 +474,22 @@ describe("shipped docs", () => {
     expect(llms.split("https://oss.vllnt.com/llms.txt").length - 1).toBe(1);
   });
 
-  test("no packed file mentions the retired vllnt domain", () => {
-    for (const file of packedFiles) {
-      expect(readFileSync(join(root, file), "utf8"), file).not.toMatch(
-        /vllnt\.ai/i,
-      );
+  test("no packed or tracked file mentions the retired vllnt domain", () => {
+    // Built from fragments so that this file does not contain the domain.
+    const retired = new RegExp(["vllnt", "ai"].join(String.raw`\.`), "i");
+    const tracked = run("git", ["ls-files", "-z"]).split("\0").filter(Boolean);
+    expect(tracked.length).toBeGreaterThan(0);
+    for (const file of new Set([...packedFiles, ...tracked])) {
+      expect(readFileSync(join(root, file), "utf8"), file).not.toMatch(retired);
     }
   });
+});
+
+test("every exact output list names a README example", () => {
+  const names = exampleGroups().map(({ name }) => name);
+  for (const name of Object.keys(expectedOutputs)) {
+    expect(names, name).toContain(name);
+  }
 });
 
 describe.each(compilers)("README examples with $label", (compiler) => {

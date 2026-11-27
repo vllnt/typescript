@@ -27,7 +27,7 @@ The documentation ships inside the package: `node_modules/@vllnt/typescript/` co
 
 ## Install
 
-`pnpm add --save-dev @vllnt/typescript@^3 typescript@^7`, then extend one preset, such as `"extends": "@vllnt/typescript/nodejs.json"`.
+`pnpm add --save-dev @vllnt/typescript@^3 typescript@^7 @types/node@^22`, then extend one preset, such as `"extends": "@vllnt/typescript/nodejs.json"`.
 
 ## Compatibility
 
@@ -59,7 +59,7 @@ Migrating from version 2 (the last four flags are new):
 - `noImplicitReturns` (TS7030): return on every path; use `return undefined;` when that is intended.
 - `noFallthroughCasesInSwitch` (TS7029): end a non-empty `case` with `break`, `return` or `throw`.
 - `exactOptionalPropertyTypes` (TS2375, TS2379, TS2412): write `prop?: T | undefined` where `undefined` is a valid value, or omit the key.
-- JavaScript output does not change. Under `exactOptionalPropertyTypes`, inferred declarations can: `count?: number | undefined` is emitted as `count?: number`.
+- JavaScript output does not change. Under `exactOptionalPropertyTypes`, inferred declarations can: an optional property that version 2 emitted in declarations as `count?: number | undefined` is now emitted as `count?: number`. A type written as `number | undefined` keeps `undefined`.
 - To adopt them gradually, set a flag to `false` in the project's own `compilerOptions` after `extends`.
 
 ## Related packages
