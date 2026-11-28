@@ -259,6 +259,9 @@ test("the package tarball has an exact public surface and resolves every preset"
   try {
     const { consumer, files } = installPackedConsumer(temporaryRoot);
     expect(files.sort()).toEqual([...expectedPackageFiles].sort());
+    expect(readFileSync(join(consumer, "pnpm-workspace.yaml"), "utf8")).toBe(
+      readFileSync(join(root, "pnpm-workspace.yaml"), "utf8"),
+    );
 
     for (const preset of presets) {
       const project = join(consumer, preset);

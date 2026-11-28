@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
 import process from "node:process";
@@ -101,6 +101,11 @@ export function installPackedConsumer(directory, devDependencies = {}) {
   );
   const consumer = join(directory, "consumer");
   mkdirSync(consumer);
+  // Without a workspace file the install ignores the repo's release-age policy.
+  copyFileSync(
+    join(root, "pnpm-workspace.yaml"),
+    join(consumer, "pnpm-workspace.yaml"),
+  );
   writeFileSync(
     join(consumer, "package.json"),
     JSON.stringify({

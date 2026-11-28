@@ -25,6 +25,7 @@ Presets are unchanged from 3.0.0. This release changes package metadata and the 
 - The README and `llms.txt` listed TS2322 as an `exactOptionalPropertyTypes` diagnostic; it is TS2412 (assigning `undefined` to an optional property), next to TS2375 and TS2379.
 - The README said that TypeScript 7 cannot disable strict mode. It can; with these presets, `strict: false` also needs `exactOptionalPropertyTypes: false` (TS5052).
 - `pnpm check` type-checks the repository scripts and tests (`pnpm typecheck`, TypeScript 6 and 7). The root `tsconfig.json` enabled `checkJs`, but nothing ran it, and it had 23 errors under TypeScript 7 and 21 under TypeScript 6. The root `tsconfig.json` sets `declaration: false`, because it only type-checks.
+- The package test's temporary consumer install now follows the repository's 7-day release-age rule (`minimumReleaseAge`) and its `@vllnt/*` exclusion: it gets a copy of the repository `pnpm-workspace.yaml`. Before, it had no workspace file, so it resolved the newest transitive versions without that rule.
 
 ## [3.0.0] - 2026-11-16
 
